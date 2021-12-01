@@ -13,9 +13,12 @@
     "husky-test": "echo \"Welcome, this is Husky speaking...\""
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint"
-    ]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix"]
+  },
+  "husky": { 
+    "hooks": {
+        "pre-commit": "lint-staged"
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
