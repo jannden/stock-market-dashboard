@@ -21,11 +21,11 @@
     ],
     "rules": {
         "prettier/prettier": [
-            "error", { "endOfLine": "auto" }
+            "error", { "endOfLine": "auto", "singleQuote": true }
         ],
         "quotes": [
             "error",
-            "double"
+            "single"
         ],
         "semi": [
             "error",

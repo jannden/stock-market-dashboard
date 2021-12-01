@@ -15,11 +15,6 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": ["eslint --fix"]
   },
-  "husky": { 
-    "hooks": {
-      "pre-push": "echo \"[Husky] pre-push\""
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
