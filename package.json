@@ -8,8 +8,8 @@
   "license": "ISC",
   "scripts": {
     "prepare": "husky install",
-    "start": "set NODE_ENV=development&& webpack serve --config ./webpack.dev.js --mode development",
-    "build": "set NODE_ENV=production&& webpack --config ./webpack.prod.js --mode production",
+    "start": "set NODE_ENV=development&& webpack serve --config ./webpack.config.js --mode development",
+    "build": "set NODE_ENV=production&& webpack --config ./webpack.config.js --mode production",
     "husky-test": "echo \"Welcome, this is Husky speaking...\""
   },
   "lint-staged": {
