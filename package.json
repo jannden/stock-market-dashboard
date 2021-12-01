@@ -13,7 +13,9 @@
     "husky-test": "echo \"Welcome, this is Husky speaking...\""
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix"]
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

@@ -1,5 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm run husky-test && node_modules/.bin/lint-staged
-
+node_modules/.bin/lint-staged
