@@ -10,12 +10,14 @@
     "prepare": "husky install",
     "start": "set NODE_ENV=development&& webpack serve --config ./webpack.config.js --mode development",
     "build": "set NODE_ENV=production&& webpack --config ./webpack.config.js --mode production",
-    "husky-test": "echo \"Welcome, this is Husky speaking...\""
+    "husky-test": "echo \"Welcome, this is Husky speaking...\"",
+    "lint": "eslint ."
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix"
-    ]
+    ],
+    "**/*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
@@ -38,7 +40,6 @@
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.0",
     "lint-staged": "^12.1.2",
-    "precise-commits": "^1.0.2",
     "prettier": "^2.4.1",
     "react-refresh": "^0.11.0",
     "style-loader": "^3.3.1",
