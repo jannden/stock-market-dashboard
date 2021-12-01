@@ -11,10 +11,10 @@
     "start": "set NODE_ENV=development&& webpack serve --config ./webpack.config.js --mode development",
     "build": "set NODE_ENV=production&& webpack --config ./webpack.config.js --mode production",
     "husky-test": "echo \"Welcome, this is Husky speaking...\"",
-    "lint": "eslint ."
+    "lint": "eslint --fix"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["prettier --write --ignore-unknown", "eslint --fix"]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write --ignore-unknown"]
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

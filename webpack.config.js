@@ -1,20 +1,20 @@
-const path = require('path');
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const Dotenv = require('dotenv-webpack');
+const path = require("path");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const Dotenv = require("dotenv-webpack");
 
 const eslintOptions = {
-  extensions: ['js', 'jsx'],
-  exclude: ['/node_modules/', '/.husky/'],
+  extensions: ["js", "jsx"],
+  exclude: ["/node_modules/", "/.husky/"],
 };
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 module.exports = {
-  mode: isDevelopment ? 'development' : 'production',
-  entry: path.resolve(__dirname, './src/index.jsx'),
+  mode: isDevelopment ? "development" : "production",
+  entry: path.resolve(__dirname, "./src/index.jsx"),
   module: {
     rules: [
       {
@@ -22,10 +22,10 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: require.resolve('babel-loader'),
+            loader: require.resolve("babel-loader"),
             options: {
               plugins: [
-                isDevelopment && require.resolve('react-refresh/babel'),
+                isDevelopment && require.resolve("react-refresh/babel"),
               ].filter(Boolean),
             },
           },
@@ -33,7 +33,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ["style-loader", "css-loader"],
       },
     ],
   },
@@ -42,20 +42,20 @@ module.exports = {
     new ESLintPlugin(eslintOptions),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: 'Dynamic Forms',
-      template: path.resolve(__dirname, './src/index.html'),
+      title: "Dynamic Forms",
+      template: path.resolve(__dirname, "./src/index.html"),
     }),
     new Dotenv(),
   ].filter(Boolean),
   resolve: {
-    extensions: ['*', '.js', '.jsx'],
+    extensions: ["*", ".js", ".jsx"],
   },
   output: {
-    path: path.resolve(__dirname, './build'),
-    filename: 'bundle.js',
+    path: path.resolve(__dirname, "./build"),
+    filename: "bundle.js",
   },
   devServer: {
-    static: path.resolve(__dirname, './build'),
+    static: path.resolve(__dirname, "./build"),
   },
-  devtool: 'source-map',
+  devtool: "source-map",
 };
