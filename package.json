@@ -14,7 +14,8 @@
     "lint": "eslint ."
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["prettier --write --ignore-unknown", "eslint --fix"]
+    "*.{js,jsx,ts,tsx}": ["prettier --write --ignore-unknown", "eslint --fix"],
+    "ignore": ["node_modules", ".husky", "dist", "package-lock.json"]
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
