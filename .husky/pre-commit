@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm run husky-test
+npm run precise-commits && npm run lint-staged
+

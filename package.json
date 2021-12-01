@@ -4,15 +4,19 @@
   "description": "React-based stock market dashboard that visualizes a predefined set of stock market indexes from a 3rd party API. This is a project for the React Upskill course from the Telerik Academy.",
   "main": "./src/index.jsx",
   "homepage": "https://jannden.gitlab.io/stock-market-dashboard",
-  "scripts": {
-    "start": "set NODE_ENV=development&& webpack serve --config ./webpack.dev.js --mode development",
-    "build": "set NODE_ENV=production&& webpack --config ./webpack.prod.js --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "husky-test": "echo \"Welcome, this is Husky speaking...\"",
-    "prepare": "husky install"
-  },
   "author": "Jan Cibulka and Teya Andreeva",
   "license": "ISC",
+  "scripts": {
+    "prepare": "husky install",
+    "start": "set NODE_ENV=development&& webpack serve --config ./webpack.dev.js --mode development",
+    "build": "set NODE_ENV=production&& webpack --config ./webpack.prod.js --mode production",
+    "husky-test": "echo \"Welcome, this is Husky speaking...\""
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
@@ -33,6 +37,8 @@
     "eslint-webpack-plugin": "^3.1.1",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.0",
+    "lint-staged": "^12.1.2",
+    "precise-commits": "^1.0.2",
     "prettier": "^2.4.1",
     "react-refresh": "^0.11.0",
     "style-loader": "^3.3.1",

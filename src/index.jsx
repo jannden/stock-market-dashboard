@@ -9,6 +9,9 @@ const tech = [
   "Webpack dev server",
   "React Fast Refresh",
   "Eslint",
+  "Prettier (from inside Eslint)",
+  "Husky",
+  "Gitlab CI/CD",
 ];
 
 ReactDOM.render(
