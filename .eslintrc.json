@@ -14,7 +14,7 @@
   "extends": ["airbnb", "prettier", "plugin:react-hooks/recommended"],
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": ["error", {"singleQuote": true, "endOfLine": "auto"}],
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
     "linebreak-style": 0,
