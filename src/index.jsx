@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-const title = "React with: ";
+const title = "Final React Project with: ";
 const tech = [
   "Babel",
   "Webpack 5",
