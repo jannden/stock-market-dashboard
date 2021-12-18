@@ -6,7 +6,7 @@ import Image from "react-bootstrap/Image";
 
 const Header = function Header() {
   return (
-    <Navbar bg="primary" variant="dark" expand="lg">
+    <Navbar bg="primary" variant="dark" expand="lg" className="mb-4">
       <Container>
         <Navbar.Brand href="#home">Stock Market Dashboard</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />

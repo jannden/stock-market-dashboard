@@ -1,24 +1,49 @@
-import React, { useState } from "react";
+import React from "react";
+
+// Bootstrap
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Card from "react-bootstrap/Card";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 // Components
 import Header from "./components/Header";
+import Controls from "./components/Controls";
 
-// Bootstrap
-import "bootstrap/dist/css/bootstrap.min.css";
-
-const App = function App({ title, tech }) {
-  const [clicks, changeClicks] = useState(0);
-
-  const techList = tech.map((el) => <li key={el}>{el}</li>);
-
+const App = function App() {
   return (
     <div>
       <Header />
-      <strong>{title}</strong>
-      <ul>{techList}</ul>
-      <button type="button" onClick={() => changeClicks(() => clicks + 1)}>
-        {clicks}
-      </button>
+      <Container>
+        <Row className="mb-4">
+          <Col xs={3}>
+            <Card>
+              <Card.Body>
+                <Card.Text>
+                  <Controls />
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col>
+            <Card>
+              <Card.Body>
+                <Card.Text>Here will be the chart</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Card>
+              <Card.Body>
+                <Card.Text>Here will be the table</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };
