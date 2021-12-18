@@ -2,7 +2,6 @@ import React from "react";
 
 // Bootstrap
 import Form from "react-bootstrap/Form";
-import Dropdown from "react-bootstrap/Dropdown";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 
@@ -13,16 +12,9 @@ const Controls = function Controls() {
         <Form.Control placeholder="Start date" />
         <Form.Control placeholder="End date" />
       </div>
-      <div className="mb-3">
-        <Dropdown>
-          <Dropdown.Toggle variant="outline-primary">
-            Choose currency
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item>EUR</Dropdown.Item>
-            <Dropdown.Item>USD</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+      <div className="mb-3 d-flex gap-2">
+        <Button variant="outline-primary">USD</Button>
+        <Button variant="primary">EUR</Button>
       </div>
       <div className="mb-3">
         <Form.Check
