@@ -1,17 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 
-const App = function App({ title, tech }) {
-  const [clicks, changeClicks] = useState(0);
+// Routing
+import { Routes, Route } from "react-router-dom";
 
-  const techList = tech.map((el) => <li key={el}>{el}</li>);
+// Bootstrap
+import Header from "./components/Header";
 
+// Components
+import Home from "./pages/Home";
+import SignUp from "./pages/SignUp";
+
+const App = function App() {
   return (
     <div>
-      <strong>{title}</strong>
-      <ul>{techList}</ul>
-      <button type="button" onClick={() => changeClicks(() => clicks + 1)}>
-        {clicks}
-      </button>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/sign-up" element={<SignUp />} />
+      </Routes>
     </div>
   );
 };
