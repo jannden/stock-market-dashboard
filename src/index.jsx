@@ -1,20 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
+
+// Router
+import { BrowserRouter } from "react-router-dom";
+
+// Bootstrap
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// Components
 import App from "./App";
 
-const title = "React with: ";
-const tech = [
-  "Babel",
-  "Webpack 5",
-  "Webpack dev server",
-  "React Fast Refresh",
-  "Eslint",
-  "Prettier (from inside Eslint)",
-  "Husky",
-  "Gitlab CI/CD",
-];
-
 ReactDOM.render(
-  <App title={title} tech={tech} />,
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
   document.getElementById("app")
 );

@@ -31,7 +31,7 @@ const Controls = function Controls() {
           label="Show only my favorites"
         />
       </div>
-      <div className="mb-3">
+      <div>
         <div className="d-flex">
           <FormControl
             type="search"
