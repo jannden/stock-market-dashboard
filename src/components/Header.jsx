@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // Routing
 import { Link } from "react-router-dom";
 

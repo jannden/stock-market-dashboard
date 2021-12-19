@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React from "react";
 
 // Bootstrap
@@ -22,17 +24,6 @@ const Controls = function Controls() {
           id="custom-switch"
           label="Show only my favorites"
         />
-      </div>
-      <div>
-        <div className="d-flex">
-          <FormControl
-            type="search"
-            placeholder="Search"
-            className="me-2"
-            aria-label="Search"
-          />
-          <Button variant="outline-primary">Search</Button>
-        </div>
       </div>
     </Form>
   );
