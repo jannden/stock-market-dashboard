@@ -16,7 +16,7 @@ const SignUp = function SignUp() {
     <Container>
       <Row className="justify-content-md-center">
         <Col className="col-lg-6 col-md-10 mx-auto">
-          <FormBuilder wizardJSON={logInForm} />
+          <FormBuilder wizardJSON={logInForm} formPurpose="logIn" />
         </Col>
       </Row>
     </Container>
