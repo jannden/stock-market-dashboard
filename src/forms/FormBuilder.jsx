@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React from "react";
 
 import Form from "react-bootstrap/Form";
@@ -174,7 +176,8 @@ const FormBuilder = function FormBuilder(props) {
           })
             .then((response) => response.json())
             .then((responseData) => {
-              setOutput(JSON.stringify(responseData, null, 2));
+              const { accessToken } = responseData;
+              props.setToken(accessToken);
             })
             .catch((error) => {
               setOutput(JSON.stringify(error, null, 2));

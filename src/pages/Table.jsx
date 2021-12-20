@@ -70,7 +70,7 @@ export default function Table() {
           placeholder="Search"
           className="me-2"
           aria-label="Search"
-          InputProps={{
+          inputprops={{
             startAdornment: (
               <InputAdornment position="start">
                 <Search />

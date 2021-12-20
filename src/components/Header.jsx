@@ -13,18 +13,20 @@ const Header = function Header() {
   return (
     <Navbar bg="primary" variant="dark" expand="md" className="mb-4">
       <Container>
-        <Navbar.Brand href="#home">Stock Market Dashboard</Navbar.Brand>
+        <Link to="/">
+          <Navbar.Brand>Stock Market Dashboard</Navbar.Brand>
+        </Link>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Link to="/" className="nav-link">
-              Home
-            </Link>
             <Link to="/sign-up" className="nav-link">
               Sign Up
             </Link>
             <Link to="/log-in" className="nav-link">
               Log In
+            </Link>
+            <Link to="/profile" className="nav-link">
+              Profile
             </Link>
           </Nav>
           <a href="#profile" className="justify-content-end">
