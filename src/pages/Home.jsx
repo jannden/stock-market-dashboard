@@ -5,7 +5,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-
+import Table from "./Table";
 // Components
 import Controls from "../components/Controls";
 
@@ -32,7 +32,7 @@ const Home = function Home() {
         <Col>
           <Card>
             <Card.Body>
-              <Card.Text>Here will be the table</Card.Text>
+              <Table />
             </Card.Body>
           </Card>
         </Col>
