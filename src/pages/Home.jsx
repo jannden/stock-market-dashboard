@@ -6,6 +6,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Table from "./Table";
+
 // Components
 import Controls from "../components/Controls";
 

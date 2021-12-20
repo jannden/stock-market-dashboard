@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import useTable from "../components/useTable";
 import { Search } from "@material-ui/icons";
-import stocksData from "../../data/stocks";
+import stocksData from "../data/stocks";
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {

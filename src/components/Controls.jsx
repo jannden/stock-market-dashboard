@@ -1,10 +1,7 @@
-/* eslint-disable */
-
 import React from "react";
 
 // Bootstrap
 import Form from "react-bootstrap/Form";
-import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 
 const Controls = function Controls() {
