@@ -9,14 +9,14 @@ import Col from "react-bootstrap/Col";
 import FormBuilder from "../forms/FormBuilder";
 
 // Data for sign-up fields
-import signUpForm from "../data/signUpForm";
+import logInForm from "../data/logInForm";
 
 const SignUp = function SignUp() {
   return (
     <Container>
       <Row className="justify-content-md-center">
         <Col className="col-lg-6 col-md-10 mx-auto">
-          <FormBuilder wizardJSON={signUpForm} formPurpose="signUp" />
+          <FormBuilder wizardJSON={logInForm} formPurpose="logIn" />
         </Col>
       </Row>
     </Container>

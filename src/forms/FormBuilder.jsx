@@ -1,4 +1,5 @@
 import React from "react";
+
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import Card from "react-bootstrap/Card";
@@ -12,10 +13,10 @@ import FormComponents from "./fields/FormComponents";
 import paginationReducer from "./paginationReducer";
 
 const FormBuilder = function FormBuilder(props) {
-  const { wizardJSON } = props;
+  const { wizardJSON, formPurpose } = props;
 
   // This will serve for useRef for file inputs (we don't know how many file inputs will the formJSON require)
-  const fileInputs = React.useRef({});
+  const refInputs = React.useRef({});
 
   const [output, setOutput] = React.useState("");
 
@@ -32,10 +33,10 @@ const FormBuilder = function FormBuilder(props) {
           // and for checkbox (=false) if those values are missing
           return { ...field, value: false, validity: true };
         }
-        if (field.type === "file") {
+        if (field.type === "file" || field.type === "password") {
           // Let's use this mapping for setting Refs as well
-          fileInputs.current = {
-            ...fileInputs.current,
+          refInputs.current = {
+            ...refInputs.current,
             [field.id]: React.createRef(),
           };
           return { ...field, value: "", validity: true };
@@ -130,7 +131,7 @@ const FormBuilder = function FormBuilder(props) {
       }
 
       // Parsing the final data
-      const result = data
+      const resultArray = data
         .map((page) =>
           page.fields.map((field) => {
             if (displayThisField(field)) {
@@ -142,12 +143,51 @@ const FormBuilder = function FormBuilder(props) {
         .flat()
         .filter((field) => field);
 
-      // Print the result
-      console.log(result);
-      setOutput(JSON.stringify(result, null, 2));
+      // Flatten the fields into a single object
+      const result = Object.assign(...resultArray);
+
+      // Fulfill the purpose of the form
+      switch (formPurpose) {
+        case "signUp":
+          fetch("http://localhost:3000/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(result),
+          })
+            .then((response) => response.json())
+            .then((responseData) => {
+              setOutput(JSON.stringify(responseData, null, 2));
+            })
+            .catch((error) => {
+              setOutput(JSON.stringify(error, null, 2));
+            });
+          break;
+        case "logIn":
+          fetch("http://localhost:3000/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(result),
+          })
+            .then((response) => response.json())
+            .then((responseData) => {
+              setOutput(JSON.stringify(responseData, null, 2));
+            })
+            .catch((error) => {
+              setOutput(JSON.stringify(error, null, 2));
+            });
+          break;
+        default:
+          // Print the result
+          setOutput(JSON.stringify(result, null, 2));
+      }
+
       return false;
     },
-    [data, displayThisField, pageValidation]
+    [data, displayThisField, formPurpose, pageValidation]
   );
 
   const handleChange = React.useCallback(
@@ -159,8 +199,8 @@ const FormBuilder = function FormBuilder(props) {
         value = event.target.checked;
       } else if (event.target.type === "file") {
         // For file, we get if from Refs
-        value = fileInputs.current[event.target.id].current.files[0]
-          ? fileInputs.current[event.target.id].current.files[0].name
+        value = refInputs.current[event.target.id].current.files[0]
+          ? refInputs.current[event.target.id].current.files[0].name
           : "";
       } else {
         // For input["text", "email"], textarea, and select, we get if from event.target.value
@@ -192,13 +232,16 @@ const FormBuilder = function FormBuilder(props) {
       if (displayThisField(field)) {
         const capitalizedType =
           field.type.charAt(0).toUpperCase() + field.type.slice(1);
-        const DesiredComponent = FormComponents[capitalizedType];
+        let DesiredComponent = FormComponents.DefaultField;
+        if (typeof FormComponents[capitalizedType] !== "undefined") {
+          DesiredComponent = FormComponents[capitalizedType];
+        }
         return (
           <DesiredComponent
             key={field.id}
             field={field}
             handleChange={handleChange}
-            fileInputs={fileInputs}
+            refInputs={refInputs}
           />
         );
       }

@@ -1,9 +1,9 @@
-/* eslint-disable */
+import React from "react";
 
 // Routing
 import { Link } from "react-router-dom";
 
-import React from "react";
+// Bootstrap
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
@@ -22,6 +22,9 @@ const Header = function Header() {
             </Link>
             <Link to="/sign-up" className="nav-link">
               Sign Up
+            </Link>
+            <Link to="/log-in" className="nav-link">
+              Log In
             </Link>
           </Nav>
           <a href="#profile" className="justify-content-end">
