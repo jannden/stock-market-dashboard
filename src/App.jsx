@@ -1,7 +1,7 @@
 import React from "react";
 
 // Routing
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
 
 // Bootstrap
 import Header from "./components/Header";
@@ -12,34 +12,37 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Profile from "./pages/Profile";
 
-// Custom hooks
+import { AuthProvider, useAuth } from "./auth/AuthContext";
+
+const RequireAuth = function RequireAuth() {
+  const { currentUser } = useAuth();
+  const location = useLocation();
+
+  if (!currentUser) {
+    // Redirect them to the /login page, but save the current location they were
+    // trying to go to when they were redirected. This allows us to send them
+    // along to that page after they login, which is a nicer user experience
+    // than dropping them off on the home page.
+    return <Navigate to="/log-in" state={{ from: location }} />;
+  }
+
+  return <Outlet />;
+};
 
 const App = function App() {
-  const getToken = () => {
-    const tokenString = localStorage.getItem("token");
-    const userToken = JSON.parse(tokenString);
-    return userToken;
-  };
-  const [token, setToken] = React.useState(getToken());
-  const saveToken = (userToken) => {
-    localStorage.setItem("token", JSON.stringify(userToken));
-    setToken(userToken);
-  };
   return (
     <div>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route
-          path="/log-in"
-          element={<LogIn token={token} setToken={saveToken} />}
-        />
-        <Route
-          path="/profile"
-          element={<Profile token={token} setToken={saveToken} />}
-        />
-      </Routes>
+      <AuthProvider>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/log-in" element={<LogIn />} />
+          <Route element={<RequireAuth />}>
+            <Route path="/profile" element={<Profile />} />{" "}
+          </Route>
+        </Routes>
+      </AuthProvider>
     </div>
   );
 };

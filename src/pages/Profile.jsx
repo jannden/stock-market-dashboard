@@ -21,6 +21,7 @@ const Profile = function Profile(props) {
       <Container>
         <Row className="justify-content-md-center">
           <Col className="col-lg-6 col-md-10 mx-auto">
+            <button type="button">Sign Out</button>
             <FormBuilder
               wizardJSON={profileForm}
               setToken={setToken}

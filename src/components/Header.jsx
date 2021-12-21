@@ -9,7 +9,10 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Image from "react-bootstrap/Image";
 
+import { useAuth } from "../auth/AuthContext";
+
 const Header = function Header() {
+  const { handleSignOut } = useAuth();
   return (
     <Navbar bg="primary" variant="dark" expand="md" className="mb-4">
       <Container>
@@ -27,6 +30,9 @@ const Header = function Header() {
             </Link>
             <Link to="/profile" className="nav-link">
               Profile
+            </Link>
+            <Link to="/" onClick={handleSignOut}>
+              Sign out
             </Link>
           </Nav>
           <a href="#profile" className="justify-content-end">

@@ -1,7 +1,6 @@
-/* eslint-disable */
+/* eslint-disable no-unused-vars */
 
 import React from "react";
-
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import Card from "react-bootstrap/Card";
@@ -14,13 +13,19 @@ import FormComponents from "./fields/FormComponents";
 // Logic
 import paginationReducer from "./paginationReducer";
 
+import { useAuth } from "../auth/AuthContext";
+
 const FormBuilder = function FormBuilder(props) {
   const { wizardJSON, formPurpose } = props;
+  const { currentUser, handleSignIn } = useAuth();
 
   // This will serve for useRef for file inputs (we don't know how many file inputs will the formJSON require)
   const refInputs = React.useRef({});
 
   const [output, setOutput] = React.useState("");
+
+  const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
   const [data, setData] = React.useState(() =>
     wizardJSON[0].pages.map((page) => ({
@@ -118,6 +123,25 @@ const FormBuilder = function FormBuilder(props) {
     [data, fieldValidity]
   );
 
+  /*
+  async function handleSignUp(result) {
+    if (
+      result.password1 &&
+      result.password2 &&
+      result.password1 !== result.password2
+    ) {
+      return setError("Passwords do not match.");
+    }
+    try {
+      setLoading(true);
+      await authToolkit.signUp(result.email, result.password);
+    } catch {
+      setError("Error while creating account.");
+    }
+    return setLoading(false);
+  }
+  */
+
   const handleSubmit = React.useCallback(
     (event) => {
       // Prevent form submit
@@ -151,36 +175,23 @@ const FormBuilder = function FormBuilder(props) {
       // Fulfill the purpose of the form
       switch (formPurpose) {
         case "signUp":
-          fetch("http://localhost:3000/register", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(result),
-          })
-            .then((response) => response.json())
-            .then((responseData) => {
-              setOutput(JSON.stringify(responseData, null, 2));
+          /*
+          createUserWithEmailAndPassword(auth, result.email, result.password)
+            .then((userCredential) => {
+              console.log(userCredential.user.email);
             })
-            .catch((error) => {
-              setOutput(JSON.stringify(error, null, 2));
+            .catch((er) => {
+              console.log(er);
             });
+            */
           break;
         case "logIn":
-          fetch("http://localhost:3000/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(result),
-          })
-            .then((response) => response.json())
-            .then((responseData) => {
-              const { accessToken } = responseData;
-              props.setToken(accessToken);
+          handleSignIn(result.email, result.password)
+            .then((userCredential) => {
+              console.log(userCredential.user.email);
             })
-            .catch((error) => {
-              setOutput(JSON.stringify(error, null, 2));
+            .catch((er) => {
+              console.log(er);
             });
           break;
         default:
@@ -190,7 +201,7 @@ const FormBuilder = function FormBuilder(props) {
 
       return false;
     },
-    [data, displayThisField, formPurpose, pageValidation]
+    [data, displayThisField, formPurpose, handleSignIn, pageValidation]
   );
 
   const handleChange = React.useCallback(
@@ -255,10 +266,12 @@ const FormBuilder = function FormBuilder(props) {
   };
 
   return (
-    <div>
+    <div className="w-100" style={{ maxWidth: "400px" }}>
       <Form onSubmit={handleSubmit} noValidate>
         <Card key={data[pagination.currentPage].title}>
-          <Header title={data[pagination.currentPage].title} />
+          <Header className="text-center fs-4">
+            {data[pagination.currentPage].title}
+          </Header>
           <Card.Body>{renderForm()}</Card.Body>
           <Footer
             pagination={pagination}
@@ -268,6 +281,9 @@ const FormBuilder = function FormBuilder(props) {
         </Card>
       </Form>
       <pre>{output}</pre>
+      <pre>{error}</pre>
+      <pre>{loading.toString()}</pre>
+      <pre>{currentUser}</pre>
     </div>
   );
 };
