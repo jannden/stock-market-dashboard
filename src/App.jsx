@@ -35,7 +35,10 @@ const App = function App() {
           path="/log-in"
           element={<LogIn token={token} setToken={saveToken} />}
         />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile"
+          element={<Profile token={token} setToken={saveToken} />}
+        />
       </Routes>
     </div>
   );
