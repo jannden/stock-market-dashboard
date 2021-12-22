@@ -13,13 +13,18 @@ import { useAuth } from "../auth/AuthContext";
 
 const UserNav = function UserNav() {
   const { currentUser } = useAuth();
-  const { displayName, photoUrl } = currentUser;
+  const { displayName, photoURL } = currentUser;
   const avatarLetters = displayName || "☺";
   const avatar =
-    photoUrl || `https://eu.ui-avatars.com/api/?name=${avatarLetters}`;
+    photoURL || `https://eu.ui-avatars.com/api/?name=${avatarLetters}`;
   return (
     <Link to="/profile">
-      <Image to="/profile" src={avatar} roundedCircle />
+      <Image
+        to="/profile"
+        src={avatar}
+        roundedCircle
+        style={{ maxHeight: "30px", maxWidth: "30px" }}
+      />
     </Link>
   );
 };

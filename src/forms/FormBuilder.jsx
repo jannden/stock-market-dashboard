@@ -36,7 +36,7 @@ const FormBuilder = function FormBuilder(props) {
           // and for checkbox (=false) if those values are missing
           return { ...field, value: false, validity: true };
         }
-        if (field.type === "file" || field.type === "password") {
+        if (field.type === "file") {
           // Let's use this mapping for setting Refs as well
           refInputs.current = {
             ...refInputs.current,

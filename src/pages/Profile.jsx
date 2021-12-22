@@ -5,126 +5,201 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
+import FormControl from "react-bootstrap/FormControl";
+import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
+
+// Firebase
+import { reauthenticateWithCredential } from "firebase/auth";
+import { auth } from "../firebase";
 
 import { useAuth } from "../auth/AuthContext";
 
 const Profile = function Profile() {
-  const emailRef = React.useRef();
-  const displayNameRef = React.useRef();
-  const photoURLRef = React.useRef();
-  const passwordOldRef = React.useRef();
-  const passwordRef = React.useRef();
-  const passwordConfirmRef = React.useRef();
   const authToolkit = useAuth();
-  const [error, setError] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-      return setError("Passwords do not match");
-    }
+  const [formLoading, setFormLoading] = React.useState(false);
+  const [formError, setFormError] = React.useState();
+  const [formSuccess, setFormSuccess] = React.useState();
+  const [formValidated, setFormValidated] = React.useState(false);
+  const [formData, setFormData] = React.useState({
+    email: authToolkit.currentUser.email || "",
+    displayName: authToolkit.currentUser.displayName || "",
+    photoURL: authToolkit.currentUser.photoURL || "",
+    newPassword1: "",
+    newPassword2: "",
+    oldPassword: "",
+  });
 
-    setLoading(true);
-    setError("");
-
-    async function myPromises() {
-      const credential = authToolkit.EmailAuthProvider.credential(
-        authToolkit.currentUser.email,
-        passwordOldRef.current.value
-      );
-      await authToolkit.reauthenticate(credential);
-      if (emailRef.current.value !== authToolkit.currentUser.email) {
-        authToolkit.handleUpdateEmail(emailRef.current.value);
-      }
-    }
-    myPromises().catch((err) => {
-      console.log(err.message);
-    });
-
-    /*
-    if (passwordRef.current.value) {
-      authToolkit.handleUpdatePassword(passwordRef.current.value);
-    }
-    authToolkit.handleUpdateProfile(
-      displayNameRef.current.value,
-      photoURLRef.current.value
-    );
-    */
-    setLoading(false);
-    return false;
+  const handleChange = (event) => {
+    const fieldName = event.target.name;
+    const fieldValue = event.target.value;
+    setFormData(() => ({ ...formData, [fieldName]: fieldValue }));
   };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setFormValidated(true);
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+      return null;
+    }
+    if (
+      (formData.newPassword1 || formData.newPassword2) &&
+      formData.newPassword1 !== formData.newPassword2
+    ) {
+      setFormError("The new passwords don't match.");
+      return null;
+    }
+
+    setFormLoading(true);
+    const credential = authToolkit.EmailAuthProvider.credential(
+      authToolkit.currentUser.email,
+      formData.oldPassword
+    );
+    reauthenticateWithCredential(auth.currentUser, credential)
+      .then(() =>
+        formData.email !== authToolkit.currentUser.email
+          ? authToolkit.handleUpdateEmail(formData.email)
+          : true
+      )
+      .then(() =>
+        formData.password1
+          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
+          : true
+      )
+      .then(() =>
+        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
+      )
+      .then(() => auth.currentUser.reload())
+      .then(() => {
+        const data = {
+          displayName: auth.currentUser.displayName,
+          email: auth.currentUser.email,
+          photoURL: auth.currentUser.photoURL,
+        };
+        authToolkit.setCurrentUser(data);
+        setFormSuccess("Changes to your profile were saved.");
+      })
+      .catch((firebaseError) => {
+        const errorCode = firebaseError.code;
+        setFormError(`There was an error: ${errorCode}.`);
+      })
+      .finally(() => {
+        setFormLoading(false);
+        setFormValidated(false);
+        setTimeout(() => {
+          setFormSuccess("");
+          setFormError("");
+        }, 5000);
+      });
+
+    return null;
+  };
+
   return (
     <Container>
       <Row className="justify-content-md-center">
         <Col className="col-lg-6 col-md-10 mx-auto">
-          <button type="button" onClick={authToolkit.handleSignOut}>
-            Sign Out
-          </button>
-
-          <Card>
+          <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Update Profile</h2>
-              {error && <Alert variant="danger">{error}</Alert>}
-              <Form onSubmit={handleSubmit}>
-                <Form.Group id="passwordOld">
-                  <Form.Label>Password OLD</Form.Label>
-                  <Form.Control
-                    type="password"
-                    ref={passwordOldRef}
-                    placeholder="Fill to save the form"
-                  />
-                </Form.Group>
-                <Form.Group id="email">
+              <Form
+                noValidate
+                validated={formValidated}
+                onSubmit={handleSubmit}
+              >
+                <Form.Group id="email" className="mb-3">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    ref={emailRef}
                     required
-                    defaultValue={authToolkit.currentUser.email}
+                    value={formData.email}
+                    onChange={handleChange}
+                    name="email"
                   />
                 </Form.Group>
-                <Form.Group id="displayName">
+                <Form.Group id="displayName" className="mb-3">
                   <Form.Label>Display Name</Form.Label>
                   <Form.Control
                     type="text"
-                    ref={displayNameRef}
                     required
-                    defaultValue={authToolkit.currentUser.displayName}
+                    value={formData.displayName}
+                    onChange={handleChange}
+                    name="displayName"
                   />
                 </Form.Group>
-                <Form.Group id="photoURL">
+                <Form.Group id="photoURL" className="mb-3">
                   <Form.Label>Photo URL</Form.Label>
                   <Form.Control
                     type="text"
-                    ref={photoURLRef}
-                    required
-                    defaultValue={authToolkit.currentUser.photoURL}
+                    value={formData.photoURL}
+                    onChange={handleChange}
+                    name="photoURL"
                   />
                 </Form.Group>
-                <Form.Group id="password">
+                <Form.Group id="password" className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
-                    ref={passwordRef}
+                    value={formData.newPassword1}
+                    onChange={handleChange}
+                    name="newPassword1"
                     placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
-                <Form.Group id="password-confirm">
+                <Form.Group id="password-confirm" className="mb-3">
                   <Form.Label>Password Confirmation</Form.Label>
                   <Form.Control
                     type="password"
-                    ref={passwordConfirmRef}
+                    value={formData.newPassword2}
+                    onChange={handleChange}
+                    name="newPassword2"
                     placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
-                <Button disabled={loading} className="w-100" type="submit">
-                  Update
-                </Button>
+                <p className="text-center fs-4 mb-3">
+                  Ready to update your profile?
+                </p>
+                <p className="text-center mb-3">
+                  To save changes, please verify your old password.
+                </p>
+                {formError && <Alert variant="danger">{formError}</Alert>}
+                {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
+                <InputGroup className="mb-3">
+                  <FormControl
+                    placeholder="Your old password"
+                    aria-describedby="submit-button"
+                    required
+                    type="password"
+                    name="oldPassword"
+                    value={formData.oldPassword}
+                    onChange={handleChange}
+                  />
+                  <Button
+                    disabled={formLoading}
+                    variant="primary"
+                    id="submit-button"
+                    type="submit"
+                  >
+                    Update your profile
+                  </Button>
+                </InputGroup>
               </Form>
+              <div className="text-center">
+                <div className="fs-4 mb-3">Ready to leave?</div>
+                <Button
+                  className=""
+                  variant="outline-secondary"
+                  type="button"
+                  onClick={authToolkit.handleSignOut}
+                >
+                  Sign out
+                </Button>
+              </div>
             </Card.Body>
           </Card>
         </Col>

@@ -11,7 +11,6 @@ import {
   updateEmail,
   updatePassword,
   sendPasswordResetEmail,
-  reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
 import { auth } from "../firebase";
@@ -30,15 +29,23 @@ export const AuthProvider = function AuthProvider({ children }) {
 
   // When Firebase finishes verifying the auth state, we can set our user state and turn off loading phase
   // This is done on rerender only, so we wrap it up in useEffect with empty array dependency []
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setCurrentUser(user);
-    } else {
-      setCurrentUser(null);
-    }
-    setLoading(false);
-  });
+  React.useEffect(
+    () =>
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const data = {
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+          };
+          setCurrentUser(data);
+        } else {
+          setCurrentUser(null);
+        }
+        setLoading(false);
+      }),
+    []
+  );
 
   // Here will be our authentication toolkit with all necessary tools calling Firebase
   const handleSignUp = (email, password) =>
@@ -53,14 +60,11 @@ export const AuthProvider = function AuthProvider({ children }) {
     updatePassword(auth.currentUser, password);
   const handleResetPassword = (email) =>
     sendPasswordResetEmail(auth.currentUser, email);
-  const reauthenticate = (credential) => {
-    reauthenticateWithCredential(auth.currentUser, credential);
-  };
 
-  // We will export the toolkit with useMemo to prevent no-constructed-context-values AirBnB error
-
+  // We will export the toolkit
   const authToolkit = {
     currentUser,
+    setCurrentUser,
     handleSignUp,
     handleSignIn,
     handleSignOut,
@@ -68,7 +72,6 @@ export const AuthProvider = function AuthProvider({ children }) {
     handleUpdateEmail,
     handleUpdatePassword,
     handleResetPassword,
-    reauthenticate,
     EmailAuthProvider,
   };
 
