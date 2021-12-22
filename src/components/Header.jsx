@@ -11,37 +11,48 @@ import Image from "react-bootstrap/Image";
 
 import { useAuth } from "../auth/AuthContext";
 
+const UserNav = function UserNav() {
+  const { currentUser } = useAuth();
+  const { displayName, photoUrl } = currentUser;
+  const avatarLetters = displayName || "☺";
+  const avatar =
+    photoUrl || `https://eu.ui-avatars.com/api/?name=${avatarLetters}`;
+  return (
+    <Link to="/profile">
+      <Image to="/profile" src={avatar} roundedCircle />
+    </Link>
+  );
+};
+
+const VisitorNav = function VisitorNav() {
+  return (
+    <Nav>
+      <Link to="/sign-up" className="nav-link">
+        Sign Up
+      </Link>
+      <Link to="/log-in" className="nav-link">
+        Log In
+      </Link>
+    </Nav>
+  );
+};
+
+const HeaderNav = function HeaderNav() {
+  const { currentUser } = useAuth();
+  if (currentUser) return <UserNav />;
+  return <VisitorNav />;
+};
+
 const Header = function Header() {
-  const { handleSignOut } = useAuth();
   return (
     <Navbar bg="primary" variant="dark" expand="md" className="mb-4">
       <Container>
-        <Link to="/">
-          <Navbar.Brand>Stock Market Dashboard</Navbar.Brand>
-        </Link>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Link to="/sign-up" className="nav-link">
-              Sign Up
-            </Link>
-            <Link to="/log-in" className="nav-link">
-              Log In
-            </Link>
-            <Link to="/profile" className="nav-link">
-              Profile
-            </Link>
-            <Link to="/" onClick={handleSignOut}>
-              Sign out
-            </Link>
-          </Nav>
-          <a href="#profile" className="justify-content-end">
-            <Image
-              src="https://eu.ui-avatars.com/api/?name=John+Doe"
-              roundedCircle
-            />
-          </a>
-        </Navbar.Collapse>
+        <Navbar.Brand as={Link} to="/">
+          Stock Market Dashboard
+        </Navbar.Brand>
+        <div className="d-flex justify-content-end align-items-center">
+          <HeaderNav />
+        </div>
       </Container>
     </Navbar>
   );

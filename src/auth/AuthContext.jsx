@@ -30,7 +30,7 @@ export const AuthProvider = function AuthProvider({ children }) {
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      setCurrentUser(user.email);
+      setCurrentUser(user);
     } else {
       setCurrentUser(null);
     }
