@@ -5,9 +5,15 @@ export default [
         title: "Sign Up",
         fields: [
           {
-            id: "username",
-            label: "Username",
+            id: "displayName",
+            label: "Display Name",
             required: true,
+            type: "text",
+          },
+          {
+            id: "photoURL",
+            label: "Photo URL",
+            required: false,
             type: "text",
           },
           {

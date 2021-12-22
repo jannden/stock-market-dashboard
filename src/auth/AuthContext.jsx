@@ -7,9 +7,12 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  updateProfile,
   updateEmail,
   updatePassword,
   sendPasswordResetEmail,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from "firebase/auth";
 import { auth } from "../firebase";
 
@@ -43,24 +46,31 @@ export const AuthProvider = function AuthProvider({ children }) {
   const handleSignIn = (email, password) =>
     signInWithEmailAndPassword(auth, email, password);
   const handleSignOut = () => signOut(auth);
-  const handleUpdateEmail = (email) => updateEmail(auth, email);
-  const handleUpdatePassword = (password) => updatePassword(auth, password);
-  const handleResetPassword = (email) => sendPasswordResetEmail(auth, email);
+  const handleUpdateProfile = (displayName, photoURL) =>
+    updateProfile(auth.currentUser, { displayName, photoURL });
+  const handleUpdateEmail = (email) => updateEmail(auth.currentUser, email);
+  const handleUpdatePassword = (password) =>
+    updatePassword(auth.currentUser, password);
+  const handleResetPassword = (email) =>
+    sendPasswordResetEmail(auth.currentUser, email);
+  const reauthenticate = (credential) => {
+    reauthenticateWithCredential(auth.currentUser, credential);
+  };
 
   // We will export the toolkit with useMemo to prevent no-constructed-context-values AirBnB error
 
-  const authToolkit = React.useMemo(
-    () => ({
-      currentUser,
-      handleSignUp,
-      handleSignIn,
-      handleSignOut,
-      handleUpdateEmail,
-      handleUpdatePassword,
-      handleResetPassword,
-    }),
-    [currentUser]
-  );
+  const authToolkit = {
+    currentUser,
+    handleSignUp,
+    handleSignIn,
+    handleSignOut,
+    handleUpdateProfile,
+    handleUpdateEmail,
+    handleUpdatePassword,
+    handleResetPassword,
+    reauthenticate,
+    EmailAuthProvider,
+  };
 
   // We wrap the children in the context if the loading phase finished and provide the children with our authentication toolkit
   return (

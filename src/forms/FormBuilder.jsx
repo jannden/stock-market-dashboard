@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import React from "react";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
@@ -17,16 +15,14 @@ import { useAuth } from "../auth/AuthContext";
 
 const FormBuilder = function FormBuilder(props) {
   const { wizardJSON, formPurpose } = props;
-  const { currentUser, handleSignIn } = useAuth();
+  const { handleSignIn, handleSignUp, handleUpdateProfile } = useAuth();
 
   // This will serve for useRef for file inputs (we don't know how many file inputs will the formJSON require)
   const refInputs = React.useRef({});
-
-  const [output, setOutput] = React.useState("");
-
+  /*
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-
+*/
   const [data, setData] = React.useState(() =>
     wizardJSON[0].pages.map((page) => ({
       ...page,
@@ -123,25 +119,6 @@ const FormBuilder = function FormBuilder(props) {
     [data, fieldValidity]
   );
 
-  /*
-  async function handleSignUp(result) {
-    if (
-      result.password1 &&
-      result.password2 &&
-      result.password1 !== result.password2
-    ) {
-      return setError("Passwords do not match.");
-    }
-    try {
-      setLoading(true);
-      await authToolkit.signUp(result.email, result.password);
-    } catch {
-      setError("Error while creating account.");
-    }
-    return setLoading(false);
-  }
-  */
-
   const handleSubmit = React.useCallback(
     (event) => {
       // Prevent form submit
@@ -175,15 +152,19 @@ const FormBuilder = function FormBuilder(props) {
       // Fulfill the purpose of the form
       switch (formPurpose) {
         case "signUp":
-          /*
-          createUserWithEmailAndPassword(auth, result.email, result.password)
-            .then((userCredential) => {
-              console.log(userCredential.user.email);
+          handleSignUp(result.email, result.password)
+            .then(() => {
+              handleUpdateProfile(result.displayName, result.photoURL)
+                .then((userCredential) => {
+                  console.log(userCredential.user.email);
+                })
+                .catch((er) => {
+                  console.log(er);
+                });
             })
             .catch((er) => {
               console.log(er);
             });
-            */
           break;
         case "logIn":
           handleSignIn(result.email, result.password)
@@ -196,12 +177,20 @@ const FormBuilder = function FormBuilder(props) {
           break;
         default:
           // Print the result
-          setOutput(JSON.stringify(result, null, 2));
+          console.log(JSON.stringify(result, null, 2));
       }
 
       return false;
     },
-    [data, displayThisField, formPurpose, handleSignIn, pageValidation]
+    [
+      data,
+      displayThisField,
+      formPurpose,
+      handleSignIn,
+      handleSignUp,
+      handleUpdateProfile,
+      pageValidation,
+    ]
   );
 
   const handleChange = React.useCallback(
@@ -280,10 +269,6 @@ const FormBuilder = function FormBuilder(props) {
           />
         </Card>
       </Form>
-      <pre>{output}</pre>
-      <pre>{error}</pre>
-      <pre>{loading.toString()}</pre>
-      <pre>{currentUser}</pre>
     </div>
   );
 };
