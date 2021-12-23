@@ -6,14 +6,18 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
+import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
+import { reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "../helpers/firebase";
+
 import { useAuth } from "../helpers/AuthContext";
 
-const LogIn = function LogIn() {
+const Profile = function Profile() {
   const authToolkit = useAuth();
 
   const [formLoading, setFormLoading] = React.useState(false);
@@ -43,9 +47,33 @@ const LogIn = function LogIn() {
       event.stopPropagation();
       return null;
     }
+    if (
+      (formData.newPassword1 || formData.newPassword2) &&
+      formData.newPassword1 !== formData.newPassword2
+    ) {
+      setFormError("The passwords don't match.");
+      return null;
+    }
+
     setFormLoading(true);
-    authToolkit
-      .handleSignIn(formData.email, formData.newPassword1)
+    const credential = authToolkit.EmailAuthProvider.credential(
+      authToolkit.currentUser.email,
+      formData.oldPassword
+    );
+    reauthenticateWithCredential(auth.currentUser, credential)
+      .then(() =>
+        formData.email !== authToolkit.currentUser.email
+          ? authToolkit.handleUpdateEmail(formData.email)
+          : true
+      )
+      .then(() =>
+        formData.password1
+          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
+          : true
+      )
+      .then(() =>
+        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
+      )
       .then(() => auth.currentUser.reload())
       .then(() => {
         const data = {
@@ -54,6 +82,7 @@ const LogIn = function LogIn() {
           photoURL: auth.currentUser.photoURL,
         };
         authToolkit.setCurrentUser(data);
+        setFormSuccess("Changes to your profile were saved.");
       })
       .catch((firebaseError) => {
         const errorCode = firebaseError.code;
@@ -70,13 +99,14 @@ const LogIn = function LogIn() {
 
     return null;
   };
+
   return (
     <Container>
       <Row className="justify-content-md-center">
         <Col className="col-lg-6 col-md-10 mx-auto">
           <Card className="mb-4">
             <Card.Body>
-              <h2 className="text-center mb-4">Log In</h2>
+              <h2 className="text-center mb-4">Update Profile</h2>
               {formError && <Alert variant="danger">{formError}</Alert>}
               {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
               <Form
@@ -94,6 +124,25 @@ const LogIn = function LogIn() {
                     name="email"
                   />
                 </Form.Group>
+                <Form.Group id="displayName" className="mb-3">
+                  <Form.Label>Display Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    required
+                    value={formData.displayName}
+                    onChange={handleChange}
+                    name="displayName"
+                  />
+                </Form.Group>
+                <Form.Group id="photoURL" className="mb-3">
+                  <Form.Label>Photo URL</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.photoURL}
+                    onChange={handleChange}
+                    name="photoURL"
+                  />
+                </Form.Group>
                 <Form.Group id="password" className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
@@ -104,17 +153,53 @@ const LogIn = function LogIn() {
                     placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
-                <div className="text-center">
+                <Form.Group id="password-confirm" className="mb-3">
+                  <Form.Label>Password Confirmation</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={formData.newPassword2}
+                    onChange={handleChange}
+                    name="newPassword2"
+                    placeholder="Leave blank to keep the same"
+                  />
+                </Form.Group>
+                <p className="text-center fs-4 mb-3">
+                  Ready to update your profile?
+                </p>
+                <p className="text-center mb-3">
+                  To save changes, please verify your old password.
+                </p>
+                <InputGroup className="mb-3">
+                  <FormControl
+                    placeholder="Your old password"
+                    aria-describedby="submit-button"
+                    required
+                    type="password"
+                    name="oldPassword"
+                    value={formData.oldPassword}
+                    onChange={handleChange}
+                  />
                   <Button
                     disabled={formLoading}
                     variant="primary"
                     id="submit-button"
                     type="submit"
                   >
-                    Log In
+                    Update your profile
                   </Button>
-                </div>
+                </InputGroup>
               </Form>
+              <div className="text-center">
+                <div className="fs-4 mb-3">Ready to leave?</div>
+                <Button
+                  className=""
+                  variant="outline-secondary"
+                  type="button"
+                  onClick={authToolkit.handleSignOut}
+                >
+                  Sign out
+                </Button>
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -122,4 +207,4 @@ const LogIn = function LogIn() {
     </Container>
   );
 };
-export default LogIn;
+export default Profile;

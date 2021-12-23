@@ -10,9 +10,9 @@ import {
   Toolbar,
   InputAdornment,
 } from "@material-ui/core";
-import useTable from "../components/useTable";
+import useTable from "./useTable";
 import { Search } from "@material-ui/icons";
-import stocksData from "../data/stocks";
+import stocksData from "./stocks";
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {
@@ -70,7 +70,7 @@ export default function Table() {
           placeholder="Search"
           className="me-2"
           aria-label="Search"
-          InputProps={{
+          inputprops={{
             startAdornment: (
               <InputAdornment position="start">
                 <Search />
