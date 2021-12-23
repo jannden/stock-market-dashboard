@@ -77,6 +77,7 @@ const Profile = function Profile() {
       .then(() => auth.currentUser.reload())
       .then(() => {
         const data = {
+          uid: auth.currentUser.uid,
           displayName: auth.currentUser.displayName,
           email: auth.currentUser.email,
           photoURL: auth.currentUser.photoURL,
@@ -99,7 +100,15 @@ const Profile = function Profile() {
 
     return null;
   };
-
+  const [firebaseData, setFirebaseData] = React.useState({});
+  const handleFirebase = () => {
+    authToolkit
+      .createFirestore(formData)
+      .then(() => authToolkit.getFirestore())
+      .then((result) => {
+        setFirebaseData(result);
+      });
+  };
   return (
     <Container>
       <Row className="justify-content-md-center">
@@ -189,7 +198,7 @@ const Profile = function Profile() {
                   </Button>
                 </InputGroup>
               </Form>
-              <div className="text-center">
+              <div className="text-center mb-3">
                 <div className="fs-4 mb-3">Ready to leave?</div>
                 <Button
                   className=""
@@ -199,6 +208,26 @@ const Profile = function Profile() {
                 >
                   Sign out
                 </Button>
+              </div>
+
+              <div className="text-center">
+                <div className="fs-4 mb-3">Test firebase</div>
+                <Button
+                  disabled={formLoading}
+                  variant="primary"
+                  id="firebase-button"
+                  type="submit"
+                  onClick={handleFirebase}
+                >
+                  Send to Firebase
+                </Button>
+                <p>
+                  {firebaseData.email
+                    ? `Firestore has now these values: ${JSON.stringify(
+                        firebaseData
+                      )}`
+                    : "Test updating Firestore with the current form values..."}
+                </p>
               </div>
             </Card.Body>
           </Card>
