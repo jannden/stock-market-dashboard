@@ -4,7 +4,7 @@ import React from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 // Bootstrap
-import Header from "./components/Header";
+import Header from "./helpers/Header";
 
 // Components
 import Home from "./pages/Home";
@@ -12,7 +12,7 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Profile from "./pages/Profile";
 
-import { AuthProvider, useAuth } from "./auth/AuthContext";
+import { AuthProvider, useAuth } from "./helpers/AuthContext";
 
 const RequireAuth = function RequireAuth() {
   const { currentUser } = useAuth();
@@ -37,8 +37,8 @@ const App = function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/sign-up" element={<SignUp />} />
           <Route element={<RequireNotAuth />}>
+            <Route path="/sign-up" element={<SignUp />} />
             <Route path="/log-in" element={<LogIn />} />
           </Route>
           <Route element={<RequireAuth />}>

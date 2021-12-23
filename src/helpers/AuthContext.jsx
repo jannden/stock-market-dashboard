@@ -13,7 +13,7 @@ import {
   sendPasswordResetEmail,
   EmailAuthProvider,
 } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "./firebase";
 
 // Creating context for authentication toolkit
 const AuthContext = React.createContext();

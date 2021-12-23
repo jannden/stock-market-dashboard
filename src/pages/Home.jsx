@@ -5,10 +5,10 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Table from "./Table";
+import Table from "../helpers/Table";
 
 // Components
-import Controls from "../components/Controls";
+import Controls from "../helpers/Controls";
 
 const Home = function Home() {
   return (

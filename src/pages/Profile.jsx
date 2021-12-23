@@ -13,9 +13,9 @@ import Alert from "react-bootstrap/Alert";
 
 // Firebase
 import { reauthenticateWithCredential } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../helpers/firebase";
 
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../helpers/AuthContext";
 
 const Profile = function Profile() {
   const authToolkit = useAuth();
@@ -25,9 +25,9 @@ const Profile = function Profile() {
   const [formSuccess, setFormSuccess] = React.useState();
   const [formValidated, setFormValidated] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    email: authToolkit.currentUser.email || "",
-    displayName: authToolkit.currentUser.displayName || "",
-    photoURL: authToolkit.currentUser.photoURL || "",
+    email: authToolkit.currentUser?.email || "",
+    displayName: authToolkit.currentUser?.displayName || "",
+    photoURL: authToolkit.currentUser?.photoURL || "",
     newPassword1: "",
     newPassword2: "",
     oldPassword: "",
@@ -51,7 +51,7 @@ const Profile = function Profile() {
       (formData.newPassword1 || formData.newPassword2) &&
       formData.newPassword1 !== formData.newPassword2
     ) {
-      setFormError("The new passwords don't match.");
+      setFormError("The passwords don't match.");
       return null;
     }
 
@@ -107,6 +107,8 @@ const Profile = function Profile() {
           <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Update Profile</h2>
+              {formError && <Alert variant="danger">{formError}</Alert>}
+              {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
               <Form
                 noValidate
                 validated={formValidated}
@@ -167,8 +169,6 @@ const Profile = function Profile() {
                 <p className="text-center mb-3">
                   To save changes, please verify your old password.
                 </p>
-                {formError && <Alert variant="danger">{formError}</Alert>}
-                {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
                 <InputGroup className="mb-3">
                   <FormControl
                     placeholder="Your old password"
