@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "./AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const ProtectedRoute = function ProtectedRoute() {
   const currentUser = useAuth();

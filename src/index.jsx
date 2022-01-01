@@ -11,7 +11,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import App from "./App";
 
 ReactDOM.render(
-  <BrowserRouter>
+  <BrowserRouter
+    basename={
+      process.env.NODE_ENV === "production"
+        ? process.env.PUBLIC_BASENAME_PATH
+        : "/"
+    }
+  >
     <App />
   </BrowserRouter>,
   document.getElementById("app")

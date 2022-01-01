@@ -10,8 +10,8 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { auth } from "../helpers/firebase";
-import { useAuth } from "../helpers/AuthContext";
+import { auth } from "../firebase";
+import useAuth from "../hooks/useAuth";
 
 const SignUp = function SignUp() {
   const authToolkit = useAuth();
@@ -52,23 +52,7 @@ const SignUp = function SignUp() {
     }
 
     setFormLoading(true);
-    /*
-    const credential = authToolkit.EmailAuthProvider.credential(
-      authToolkit.currentUser.email,
-      formData.oldPassword
-    );
-    reauthenticateWithCredential(auth.currentUser, credential)
-      .then(() =>
-        formData.email !== authToolkit.currentUser.email
-          ? authToolkit.handleUpdateEmail(formData.email)
-          : true
-      )
-      .then(() =>
-        formData.password1
-          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
-          : true
-      )
-      */
+
     authToolkit
       .handleSignUp(formData.email, formData.newPassword1)
       .then(() =>
@@ -149,7 +133,6 @@ const SignUp = function SignUp() {
                     value={formData.newPassword1}
                     onChange={handleChange}
                     name="newPassword1"
-                    placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
                 <Form.Group id="password-confirm" className="mb-3">
@@ -159,37 +142,8 @@ const SignUp = function SignUp() {
                     value={formData.newPassword2}
                     onChange={handleChange}
                     name="newPassword2"
-                    placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
-                {/*
-                <p className="text-center fs-4 mb-3">
-                  Ready to update your profile?
-                </p>
-                <p className="text-center mb-3">
-                  To save changes, please verify your old password.
-                </p>
-                <InputGroup className="mb-3">
-                  <FormControl
-                    placeholder="Your old password"
-                    aria-describedby="submit-button"
-                    required
-                    type="password"
-                    name="oldPassword"
-                    value={formData.oldPassword}
-                    onChange={handleChange}
-                  />
-                  <Button
-                    disabled={formLoading}
-                    variant="primary"
-                    id="submit-button"
-                    type="submit"
-                  >
-                    Update your profile
-                  </Button>
-                </InputGroup>
-                
-                */}
                 <div className="text-center">
                   <Button
                     disabled={formLoading}
@@ -201,19 +155,6 @@ const SignUp = function SignUp() {
                   </Button>
                 </div>
               </Form>
-              {/*
-              <div className="text-center">
-                <div className="fs-4 mb-3">Ready to leave?</div>
-                <Button
-                  className=""
-                  variant="outline-secondary"
-                  type="button"
-                  onClick={authToolkit.handleSignOut}
-                >
-                  Sign out
-                </Button>
-              </div>
-              */}
             </Card.Body>
           </Card>
         </Col>

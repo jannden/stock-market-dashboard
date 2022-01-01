@@ -9,7 +9,7 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Image from "react-bootstrap/Image";
 
-import { useAuth } from "./AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const UserNav = function UserNav() {
   const { currentUser } = useAuth();

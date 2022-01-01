@@ -4,7 +4,7 @@ import React from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 // Bootstrap
-import Header from "./helpers/Header";
+import Header from "./components/Header";
 
 // Components
 import Home from "./pages/Home";
@@ -12,7 +12,8 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Profile from "./pages/Profile";
 
-import { AuthProvider, useAuth } from "./helpers/AuthContext";
+import AuthProvider from "./contexts/AuthContext";
+import useAuth from "./hooks/useAuth";
 
 const RequireAuth = function RequireAuth() {
   const { currentUser } = useAuth();

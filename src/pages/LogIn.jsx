@@ -10,8 +10,8 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { auth } from "../helpers/firebase";
-import { useAuth } from "../helpers/AuthContext";
+import { auth } from "../firebase";
+import useAuth from "../hooks/useAuth";
 
 const LogIn = function LogIn() {
   const authToolkit = useAuth();
@@ -101,7 +101,6 @@ const LogIn = function LogIn() {
                     value={formData.newPassword1}
                     onChange={handleChange}
                     name="newPassword1"
-                    placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
                 <div className="text-center">

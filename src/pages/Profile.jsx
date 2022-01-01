@@ -13,9 +13,9 @@ import Alert from "react-bootstrap/Alert";
 
 // Firebase
 import { reauthenticateWithCredential } from "firebase/auth";
-import { auth } from "../helpers/firebase";
+import { auth } from "../firebase";
 
-import { useAuth } from "../helpers/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const Profile = function Profile() {
   const authToolkit = useAuth();
