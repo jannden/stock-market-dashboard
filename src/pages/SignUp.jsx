@@ -10,17 +10,16 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { auth } from "../firebase";
 import useAuth from "../hooks/useAuth";
 
 const SignUp = function SignUp() {
   const authToolkit = useAuth();
 
-  const [formLoading, setFormLoading] = React.useState(false);
-  const [formError, setFormError] = React.useState();
-  const [formSuccess, setFormSuccess] = React.useState();
-  const [formValidated, setFormValidated] = React.useState(false);
   const [formData, setFormData] = React.useState({
+    formLoading: false,
+    formError: null,
+    formSuccess: null,
+    formValidated: false,
     email: authToolkit.currentUser?.email || "",
     displayName: authToolkit.currentUser?.displayName || "",
     photoURL: authToolkit.currentUser?.photoURL || "",
@@ -38,49 +37,34 @@ const SignUp = function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
-    setFormValidated(true);
+    setFormData({ ...formData, formValidated: true });
     if (form.checkValidity() === false) {
       event.stopPropagation();
       return null;
     }
-    if (
-      (formData.newPassword1 || formData.newPassword2) &&
-      formData.newPassword1 !== formData.newPassword2
-    ) {
-      setFormError("The passwords don't match.");
-      return null;
-    }
-
-    setFormLoading(true);
-
+    setFormData({ ...formData, formLoading: true });
     authToolkit
       .handleSignUp(formData.email, formData.newPassword1)
-      .then(() =>
-        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
-      )
-      .then(() => auth.currentUser.reload())
       .then(() => {
-        const data = {
-          displayName: auth.currentUser.displayName,
-          email: auth.currentUser.email,
-          photoURL: auth.currentUser.photoURL,
-        };
-        authToolkit.setCurrentUser(data);
-        setFormSuccess("Changes to your profile were saved.");
+        authToolkit.handleUpdateProfile(
+          formData.displayName,
+          formData.photoURL
+        );
       })
       .catch((firebaseError) => {
-        const errorCode = firebaseError.code;
-        setFormError(`There was an error: ${errorCode}.`);
-      })
-      .finally(() => {
-        setFormLoading(false);
-        setFormValidated(false);
+        setFormData({
+          ...formData,
+          formLoading: false,
+          formValidated: false,
+          formError: `There was an error: ${firebaseError.code}.`,
+        });
         setTimeout(() => {
-          setFormSuccess("");
-          setFormError("");
-        }, 5000);
+          setFormData({
+            ...formData,
+            formError: "",
+          });
+        }, 3000);
       });
-
     return null;
   };
   return (
@@ -90,11 +74,15 @@ const SignUp = function SignUp() {
           <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Sign Up</h2>
-              {formError && <Alert variant="danger">{formError}</Alert>}
-              {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
+              {formData.formError && (
+                <Alert variant="danger">{formData.formError}</Alert>
+              )}
+              {formData.formSuccess && (
+                <Alert variant="success">{formData.formSuccess}</Alert>
+              )}
               <Form
                 noValidate
-                validated={formValidated}
+                validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
                 <Form.Group id="email" className="mb-3">
@@ -105,25 +93,6 @@ const SignUp = function SignUp() {
                     value={formData.email}
                     onChange={handleChange}
                     name="email"
-                  />
-                </Form.Group>
-                <Form.Group id="displayName" className="mb-3">
-                  <Form.Label>Display Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    required
-                    value={formData.displayName}
-                    onChange={handleChange}
-                    name="displayName"
-                  />
-                </Form.Group>
-                <Form.Group id="photoURL" className="mb-3">
-                  <Form.Label>Photo URL</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.photoURL}
-                    onChange={handleChange}
-                    name="photoURL"
                   />
                 </Form.Group>
                 <Form.Group id="password" className="mb-3">
@@ -146,7 +115,7 @@ const SignUp = function SignUp() {
                 </Form.Group>
                 <div className="text-center">
                   <Button
-                    disabled={formLoading}
+                    disabled={formData.formLoading}
                     variant="primary"
                     id="submit-button"
                     type="submit"

@@ -1,5 +1,4 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -12,12 +11,12 @@ import Alert from "react-bootstrap/Alert";
 
 // Firebase
 import useAuth from "../hooks/useAuth";
-import { userLogin } from "../actions/userActions";
+
+// Redux Actions
 
 const LogIn = function LogIn() {
-  const dispatch = useDispatch();
-
   const authToolkit = useAuth();
+
   const [formData, setFormData] = React.useState({
     formLoading: false,
     formError: null,
@@ -45,7 +44,25 @@ const LogIn = function LogIn() {
       event.stopPropagation();
       return null;
     }
-    dispatch(userLogin(authToolkit, formData, setFormData));
+    setFormData({ ...formData, formLoading: true });
+
+    authToolkit
+      .handleSignIn(formData.email, formData.newPassword1)
+      .catch((firebaseError) => {
+        setFormData({
+          ...formData,
+          formLoading: false,
+          formValidated: false,
+          formError: `There was an error: ${firebaseError.code}.`,
+        });
+        setTimeout(() => {
+          setFormData({
+            ...formData,
+            formError: "",
+          });
+        }, 3000);
+      });
+
     return null;
   };
   return (

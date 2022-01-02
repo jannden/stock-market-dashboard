@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 // Routing
 import { Link } from "react-router-dom";
@@ -9,10 +10,8 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Image from "react-bootstrap/Image";
 
-import useAuth from "../hooks/useAuth";
-
 const UserNav = function UserNav() {
-  const { currentUser } = useAuth();
+  const currentUser = useSelector((state) => state.currentUser);
   const { displayName, photoURL } = currentUser;
   const avatarLetters = displayName || "☺";
   const avatar =
@@ -43,8 +42,8 @@ const VisitorNav = function VisitorNav() {
 };
 
 const HeaderNav = function HeaderNav() {
-  const { currentUser } = useAuth();
-  if (currentUser) return <UserNav />;
+  const currentUser = useSelector((state) => state.currentUser);
+  if (currentUser?.uid) return <UserNav />;
   return <VisitorNav />;
 };
 

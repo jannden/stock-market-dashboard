@@ -1,8 +1,14 @@
 import React from "react";
+
+// React-Redux
 import { Provider } from "react-redux";
 
 // Routing
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+
+// Firebase and Firestore
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
 
 // Bootstrap
 import Header from "./components/Header";
@@ -12,31 +18,44 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Profile from "./pages/Profile";
+import { RequireAuth, RequireNotAuth } from "./components/ProtectedRoutes";
 
-import AuthProvider from "./contexts/AuthContext";
-import useAuth from "./hooks/useAuth";
+// Redux
 import store from "./store";
-
-const RequireAuth = function RequireAuth() {
-  const { currentUser } = useAuth();
-  if (!currentUser) {
-    return <Navigate to="/log-in" />;
-  }
-  return <Outlet />;
-};
-
-const RequireNotAuth = function RequireNotAuth() {
-  const { currentUser } = useAuth();
-  if (currentUser) {
-    return <Navigate to="/profile" />;
-  }
-  return <Outlet />;
-};
+import { setUser } from "./actions/userActions";
 
 const App = function App() {
+  // When Firebase finishes verifying the auth state, we can set our user state and turn off loading phase
+  // Having loading phase here in AuthProvider prevents the App to blink at the initial paint
+  const [initialLoading, setInitialLoading] = React.useState(true);
+  React.useEffect(
+    () =>
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const data = {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+          };
+          store.dispatch(setUser(data));
+        } else {
+          const initialUserState = {
+            uid: null,
+            displayName: null,
+            email: null,
+            photoURL: null,
+          };
+          store.dispatch(setUser(initialUserState));
+        }
+        setInitialLoading(false);
+      }),
+    []
+  );
+
   return (
     <div>
-      <AuthProvider>
+      {!initialLoading && (
         <Provider store={store}>
           <Header />
           <Routes>
@@ -50,7 +69,7 @@ const App = function App() {
             </Route>
           </Routes>
         </Provider>
-      </AuthProvider>
+      )}
     </div>
   );
 };

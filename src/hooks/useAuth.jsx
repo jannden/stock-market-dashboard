@@ -1,4 +1,4 @@
-import React from "react";
+import { useSelector } from "react-redux";
 
 // Firebase and Firestore
 import {
@@ -16,11 +16,8 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 // Custom initialization for Firebase and Firestore
 import { auth, db } from "../firebase";
 
-// Authentication state
-import { AuthContext } from "../contexts/AuthContext";
-
 const useAuth = () => {
-  const { currentUser, setCurrentUser } = React.useContext(AuthContext);
+  const currentUser = useSelector((state) => state.currentUser);
 
   // Here will be our authentication toolkit with all necessary tools calling Firebase
   const handleSignUp = (email, password) =>
@@ -61,7 +58,6 @@ const useAuth = () => {
   // We will export the toolkit
   return {
     currentUser,
-    setCurrentUser,
     handleSignUp,
     handleSignIn,
     handleSignOut,

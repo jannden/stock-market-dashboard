@@ -1,49 +1,66 @@
-import { USER_SIGNUP, USER_LOGIN, USER_UPDATE, USER_DATA } from "./types";
-
-// Firebase
+import { reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "../firebase";
 
-export const userSignup = (userData) => ({
-  type: USER_SIGNUP,
-  payload: userData,
-});
+import { SET_USER, UNSET_USER } from "./types";
 
-export const userLogin = (authToolkit, formData, setFormData) => (dispatch) => {
-  authToolkit
-    .handleSignIn(formData.email, formData.newPassword1)
-    .then(() => auth.currentUser.reload())
-    .then(() => {
-      const data = {
-        displayName: auth.currentUser.displayName,
-        email: auth.currentUser.email,
-        photoURL: auth.currentUser.photoURL,
-      };
-      dispatch({
-        type: USER_LOGIN,
-        payload: data,
-      });
-    })
-    .catch((firebaseError) => {
-      setFormData({
-        ...formData,
-        formLoading: false,
-        formValidated: false,
-        formError: `There was an error: ${firebaseError.code}.`,
-      });
-      setTimeout(() => {
+export const userUpdate =
+  (authToolkit, formData, setFormData) => (dispatch) => {
+    const credential = authToolkit.EmailAuthProvider.credential(
+      authToolkit.currentUser.email,
+      formData.oldPassword
+    );
+
+    reauthenticateWithCredential(auth.currentUser, credential)
+      .then(() =>
+        formData.email !== authToolkit.currentUser.email
+          ? authToolkit.handleUpdateEmail(formData.email)
+          : true
+      )
+      .then(() =>
+        formData.password1
+          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
+          : true
+      )
+      .then(() =>
+        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
+      )
+      .then(() => {
+        const data = {
+          uid: auth.currentUser.uid,
+          email: formData.email,
+          displayName: formData.displayName,
+          photoURL: formData.photoURL,
+        };
+        dispatch({
+          type: SET_USER,
+          payload: data,
+        });
         setFormData({
           ...formData,
-          formError: "",
+          formSuccess: "Changes to your profile were saved.",
         });
-      }, 5000);
-    });
-};
+      })
+      .catch((firebaseError) => {
+        setFormData({
+          ...formData,
+          formLoading: false,
+          formValidated: false,
+          formError: `There was an error: ${firebaseError.code}.`,
+        });
+        setTimeout(() => {
+          setFormData({
+            ...formData,
+            formError: "",
+          });
+        }, 3000);
+      });
+  };
 
-export const userUpdate = ({ email, password }) => ({
-  type: USER_UPDATE,
-  payload: { email, password },
+export const setUser = (data) => ({
+  type: SET_USER,
+  payload: data,
 });
 
-export const userData = () => ({
-  type: USER_DATA,
+export const unsetUser = () => ({
+  type: UNSET_USER,
 });
