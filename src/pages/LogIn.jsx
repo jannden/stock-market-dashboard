@@ -1,4 +1,5 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -10,17 +11,18 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { auth } from "../firebase";
 import useAuth from "../hooks/useAuth";
+import { userLogin } from "../actions/userActions";
 
 const LogIn = function LogIn() {
-  const authToolkit = useAuth();
+  const dispatch = useDispatch();
 
-  const [formLoading, setFormLoading] = React.useState(false);
-  const [formError, setFormError] = React.useState();
-  const [formSuccess, setFormSuccess] = React.useState();
-  const [formValidated, setFormValidated] = React.useState(false);
+  const authToolkit = useAuth();
   const [formData, setFormData] = React.useState({
+    formLoading: false,
+    formError: null,
+    formSuccess: null,
+    formValidated: false,
     email: authToolkit.currentUser?.email || "",
     displayName: authToolkit.currentUser?.displayName || "",
     photoURL: authToolkit.currentUser?.photoURL || "",
@@ -32,42 +34,18 @@ const LogIn = function LogIn() {
   const handleChange = (event) => {
     const fieldName = event.target.name;
     const fieldValue = event.target.value;
-    setFormData(() => ({ ...formData, [fieldName]: fieldValue }));
+    setFormData({ ...formData, [fieldName]: fieldValue });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
-    setFormValidated(true);
+    setFormData({ ...formData, formValidated: true });
     if (form.checkValidity() === false) {
       event.stopPropagation();
       return null;
     }
-    setFormLoading(true);
-    authToolkit
-      .handleSignIn(formData.email, formData.newPassword1)
-      .then(() => auth.currentUser.reload())
-      .then(() => {
-        const data = {
-          displayName: auth.currentUser.displayName,
-          email: auth.currentUser.email,
-          photoURL: auth.currentUser.photoURL,
-        };
-        authToolkit.setCurrentUser(data);
-      })
-      .catch((firebaseError) => {
-        const errorCode = firebaseError.code;
-        setFormError(`There was an error: ${errorCode}.`);
-      })
-      .finally(() => {
-        setFormLoading(false);
-        setFormValidated(false);
-        setTimeout(() => {
-          setFormSuccess("");
-          setFormError("");
-        }, 5000);
-      });
-
+    dispatch(userLogin(authToolkit, formData, setFormData));
     return null;
   };
   return (
@@ -77,11 +55,12 @@ const LogIn = function LogIn() {
           <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Log In</h2>
-              {formError && <Alert variant="danger">{formError}</Alert>}
-              {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
+              {formData.formError && (
+                <Alert variant="danger">{formData.formError}</Alert>
+              )}
               <Form
                 noValidate
-                validated={formValidated}
+                validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
                 <Form.Group id="email" className="mb-3">
@@ -105,7 +84,7 @@ const LogIn = function LogIn() {
                 </Form.Group>
                 <div className="text-center">
                   <Button
-                    disabled={formLoading}
+                    disabled={formData.formLoading}
                     variant="primary"
                     id="submit-button"
                     type="submit"
