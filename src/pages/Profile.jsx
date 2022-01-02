@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -13,23 +13,25 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import useAuth from "../hooks/useAuth";
+import { signOut } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 // Redux
 import { userUpdate } from "../actions/userActions";
 
 const Profile = function Profile() {
+  const currentUser = useSelector((state) => state.currentUser);
   const dispatch = useDispatch();
-  const authToolkit = useAuth();
 
   const [formData, setFormData] = React.useState({
     formLoading: false,
     formError: null,
     formSuccess: null,
     formValidated: false,
-    email: authToolkit.currentUser?.email || "",
-    displayName: authToolkit.currentUser?.displayName || "",
-    photoURL: authToolkit.currentUser?.photoURL || "",
+    email: currentUser.email || "",
+    displayName: currentUser.displayName || "",
+    photoURL: currentUser.photoURL || "",
     newPassword1: "",
     newPassword2: "",
     oldPassword: "",
@@ -58,22 +60,45 @@ const Profile = function Profile() {
     }
     setFormData({ ...formData, formLoading: true });
 
-    dispatch(userUpdate(authToolkit, formData, setFormData));
+    dispatch(userUpdate(formData, setFormData));
 
     return null;
   };
-  const [firebaseData, setFirebaseData] = React.useState({});
+
+  const handleSignout = () => {
+    signOut(auth);
+  };
+
+  // TESTING FIRESTORE SECTION
+  const createFirestore = async (newData) => {
+    try {
+      await setDoc(doc(db, "users", currentUser.uid), newData);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+  const getFirestore = async () => {
+    try {
+      const docRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+      return { error: "User not found..." };
+    } catch (error) {
+      return { error };
+    }
+  };
+  const [firestoreData, setFirestoreData] = React.useState({});
   const handleFirebase = () => {
-    authToolkit
-      .createFirestore(formData)
-      .then(() => authToolkit.getFirestore())
+    createFirestore(formData)
+      .then(() => getFirestore())
       .then((result) => {
-        setFirebaseData(result);
+        setFirestoreData(result);
       });
   };
-  const handleSignout = () => {
-    authToolkit.handleSignOut();
-  };
+  // END OF TESTING FIRESTORE SECTION
+
   return (
     <Container>
       <Row className="justify-content-md-center">
@@ -191,9 +216,9 @@ const Profile = function Profile() {
                   Send to Firebase
                 </Button>
                 <p>
-                  {firebaseData.email
+                  {firestoreData.email
                     ? `Firestore has now these values: ${JSON.stringify(
-                        firebaseData
+                        firestoreData
                       )}`
                     : "Test updating Firestore with the current form values..."}
                 </p>

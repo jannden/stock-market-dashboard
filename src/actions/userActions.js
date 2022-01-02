@@ -1,60 +1,70 @@
-import { reauthenticateWithCredential } from "firebase/auth";
+// Firebase and Firestore
+import {
+  reauthenticateWithCredential,
+  updateProfile,
+  updateEmail,
+  updatePassword,
+  EmailAuthProvider,
+} from "firebase/auth";
+
+// Custom initialization for Firebase and Firestore
 import { auth } from "../firebase";
 
 import { SET_USER, UNSET_USER } from "./types";
 
-export const userUpdate =
-  (authToolkit, formData, setFormData) => (dispatch) => {
-    const credential = authToolkit.EmailAuthProvider.credential(
-      authToolkit.currentUser.email,
-      formData.oldPassword
-    );
-
-    reauthenticateWithCredential(auth.currentUser, credential)
-      .then(() =>
-        formData.email !== authToolkit.currentUser.email
-          ? authToolkit.handleUpdateEmail(formData.email)
-          : true
-      )
-      .then(() =>
-        formData.password1
-          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
-          : true
-      )
-      .then(() =>
-        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
-      )
-      .then(() => {
-        const data = {
-          uid: auth.currentUser.uid,
-          email: formData.email,
-          displayName: formData.displayName,
-          photoURL: formData.photoURL,
-        };
-        dispatch({
-          type: SET_USER,
-          payload: data,
-        });
-        setFormData({
-          ...formData,
-          formSuccess: "Changes to your profile were saved.",
-        });
+export const userUpdate = (formData, setFormData) => (dispatch) => {
+  const credential = EmailAuthProvider.credential(
+    auth.currentUser.email,
+    formData.oldPassword
+  );
+  reauthenticateWithCredential(auth.currentUser, credential)
+    .then(() =>
+      formData.email !== auth.currentUser.email
+        ? updateEmail(auth.currentUser, formData.email)
+        : true
+    )
+    .then(() =>
+      formData.password1
+        ? updatePassword(auth.currentUser, formData.password1)
+        : true
+    )
+    .then(() =>
+      updateProfile(auth.currentUser, {
+        displayName: formData.displayName,
+        photoURL: formData.photoURL,
       })
-      .catch((firebaseError) => {
+    )
+    .then(() => {
+      setFormData({
+        ...formData,
+        formSuccess: "Changes to your profile were saved.",
+      });
+      const data = {
+        uid: auth.currentUser.uid,
+        email: formData.email,
+        displayName: formData.displayName,
+        photoURL: formData.photoURL,
+      };
+      dispatch({
+        type: SET_USER,
+        payload: data,
+      });
+    })
+    .catch((firebaseError) => {
+      setFormData({
+        ...formData,
+        formLoading: false,
+        formValidated: false,
+        formError: `There was an error: ${firebaseError.code}.`,
+      });
+      setTimeout(() => {
         setFormData({
           ...formData,
-          formLoading: false,
-          formValidated: false,
-          formError: `There was an error: ${firebaseError.code}.`,
+          formError: "",
         });
-        setTimeout(() => {
-          setFormData({
-            ...formData,
-            formError: "",
-          });
-        }, 3000);
-      });
-  };
+      }, 3000);
+    });
+};
 
 export const setUser = (data) => ({
   type: SET_USER,

@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -10,21 +11,20 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import useAuth from "../hooks/useAuth";
-
-// Redux Actions
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const LogIn = function LogIn() {
-  const authToolkit = useAuth();
+  const currentUser = useSelector((state) => state.currentUser);
 
   const [formData, setFormData] = React.useState({
     formLoading: false,
     formError: null,
     formSuccess: null,
     formValidated: false,
-    email: authToolkit.currentUser?.email || "",
-    displayName: authToolkit.currentUser?.displayName || "",
-    photoURL: authToolkit.currentUser?.photoURL || "",
+    email: currentUser.email || "",
+    displayName: currentUser.displayName || "",
+    photoURL: currentUser.photoURL || "",
     newPassword1: "",
     newPassword2: "",
     oldPassword: "",
@@ -46,22 +46,25 @@ const LogIn = function LogIn() {
     }
     setFormData({ ...formData, formLoading: true });
 
-    authToolkit
-      .handleSignIn(formData.email, formData.newPassword1)
-      .catch((firebaseError) => {
+    // We don't need to dispatch userData to Redux from here, as it is taken care of in onAuthStateChanged (App.jsx)
+    signInWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.newPassword1
+    ).catch((firebaseError) => {
+      setFormData({
+        ...formData,
+        formLoading: false,
+        formValidated: false,
+        formError: `There was an error: ${firebaseError.code}.`,
+      });
+      setTimeout(() => {
         setFormData({
           ...formData,
-          formLoading: false,
-          formValidated: false,
-          formError: `There was an error: ${firebaseError.code}.`,
+          formError: "",
         });
-        setTimeout(() => {
-          setFormData({
-            ...formData,
-            formError: "",
-          });
-        }, 3000);
-      });
+      }, 3000);
+    });
 
     return null;
   };

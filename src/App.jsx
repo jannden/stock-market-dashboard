@@ -22,7 +22,7 @@ import { RequireAuth, RequireNotAuth } from "./components/ProtectedRoutes";
 
 // Redux
 import store from "./store";
-import { setUser } from "./actions/userActions";
+import { setUser, unsetUser } from "./actions/userActions";
 
 const App = function App() {
   // When Firebase finishes verifying the auth state, we can set our user state and turn off loading phase
@@ -40,13 +40,7 @@ const App = function App() {
           };
           store.dispatch(setUser(data));
         } else {
-          const initialUserState = {
-            uid: null,
-            displayName: null,
-            email: null,
-            photoURL: null,
-          };
-          store.dispatch(setUser(initialUserState));
+          store.dispatch(unsetUser());
         }
         setInitialLoading(false);
       }),
