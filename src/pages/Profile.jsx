@@ -1,4 +1,5 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -12,22 +13,25 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { reauthenticateWithCredential } from "firebase/auth";
-import { auth } from "../helpers/firebase";
+import { signOut } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
-import { useAuth } from "../helpers/AuthContext";
+// Redux
+import { userUpdate } from "../actions/userActions";
 
 const Profile = function Profile() {
-  const authToolkit = useAuth();
+  const currentUser = useSelector((state) => state.currentUser);
+  const dispatch = useDispatch();
 
-  const [formLoading, setFormLoading] = React.useState(false);
-  const [formError, setFormError] = React.useState();
-  const [formSuccess, setFormSuccess] = React.useState();
-  const [formValidated, setFormValidated] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    email: authToolkit.currentUser?.email || "",
-    displayName: authToolkit.currentUser?.displayName || "",
-    photoURL: authToolkit.currentUser?.photoURL || "",
+    formLoading: false,
+    formError: null,
+    formSuccess: null,
+    formValidated: false,
+    email: currentUser.email || "",
+    displayName: currentUser.displayName || "",
+    photoURL: currentUser.photoURL || "",
     newPassword1: "",
     newPassword2: "",
     oldPassword: "",
@@ -42,7 +46,7 @@ const Profile = function Profile() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
-    setFormValidated(true);
+    setFormData({ ...formData, formValidated: true });
     if (form.checkValidity() === false) {
       event.stopPropagation();
       return null;
@@ -51,64 +55,50 @@ const Profile = function Profile() {
       (formData.newPassword1 || formData.newPassword2) &&
       formData.newPassword1 !== formData.newPassword2
     ) {
-      setFormError("The passwords don't match.");
+      setFormData({ ...formData, formError: "The passwords don't match." });
       return null;
     }
+    setFormData({ ...formData, formLoading: true });
 
-    setFormLoading(true);
-    const credential = authToolkit.EmailAuthProvider.credential(
-      authToolkit.currentUser.email,
-      formData.oldPassword
-    );
-    reauthenticateWithCredential(auth.currentUser, credential)
-      .then(() =>
-        formData.email !== authToolkit.currentUser.email
-          ? authToolkit.handleUpdateEmail(formData.email)
-          : true
-      )
-      .then(() =>
-        formData.password1
-          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
-          : true
-      )
-      .then(() =>
-        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
-      )
-      .then(() => auth.currentUser.reload())
-      .then(() => {
-        const data = {
-          uid: auth.currentUser.uid,
-          displayName: auth.currentUser.displayName,
-          email: auth.currentUser.email,
-          photoURL: auth.currentUser.photoURL,
-        };
-        authToolkit.setCurrentUser(data);
-        setFormSuccess("Changes to your profile were saved.");
-      })
-      .catch((firebaseError) => {
-        const errorCode = firebaseError.code;
-        setFormError(`There was an error: ${errorCode}.`);
-      })
-      .finally(() => {
-        setFormLoading(false);
-        setFormValidated(false);
-        setTimeout(() => {
-          setFormSuccess("");
-          setFormError("");
-        }, 5000);
-      });
+    dispatch(userUpdate(formData, setFormData));
 
     return null;
   };
-  const [firebaseData, setFirebaseData] = React.useState({});
+
+  const handleSignout = () => {
+    signOut(auth);
+  };
+
+  // TESTING FIRESTORE SECTION
+  const createFirestore = async (newData) => {
+    try {
+      await setDoc(doc(db, "users", currentUser.uid), newData);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+  const getFirestore = async () => {
+    try {
+      const docRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+      return { error: "User not found..." };
+    } catch (error) {
+      return { error };
+    }
+  };
+  const [firestoreData, setFirestoreData] = React.useState({});
   const handleFirebase = () => {
-    authToolkit
-      .createFirestore(formData)
-      .then(() => authToolkit.getFirestore())
+    createFirestore(formData)
+      .then(() => getFirestore())
       .then((result) => {
-        setFirebaseData(result);
+        setFirestoreData(result);
       });
   };
+  // END OF TESTING FIRESTORE SECTION
+
   return (
     <Container>
       <Row className="justify-content-md-center">
@@ -116,11 +106,15 @@ const Profile = function Profile() {
           <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Update Profile</h2>
-              {formError && <Alert variant="danger">{formError}</Alert>}
-              {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
+              {formData.formError && (
+                <Alert variant="danger">{formData.formError}</Alert>
+              )}
+              {formData.formSuccess && (
+                <Alert variant="success">{formData.formSuccess}</Alert>
+              )}
               <Form
                 noValidate
-                validated={formValidated}
+                validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
                 <Form.Group id="email" className="mb-3">
@@ -189,7 +183,7 @@ const Profile = function Profile() {
                     onChange={handleChange}
                   />
                   <Button
-                    disabled={formLoading}
+                    disabled={formData.formLoading}
                     variant="primary"
                     id="submit-button"
                     type="submit"
@@ -204,7 +198,7 @@ const Profile = function Profile() {
                   className=""
                   variant="outline-secondary"
                   type="button"
-                  onClick={authToolkit.handleSignOut}
+                  onClick={handleSignout}
                 >
                   Sign out
                 </Button>
@@ -213,7 +207,7 @@ const Profile = function Profile() {
               <div className="text-center">
                 <div className="fs-4 mb-3">Test firebase</div>
                 <Button
-                  disabled={formLoading}
+                  disabled={formData.formLoading}
                   variant="primary"
                   id="firebase-button"
                   type="submit"
@@ -222,9 +216,9 @@ const Profile = function Profile() {
                   Send to Firebase
                 </Button>
                 <p>
-                  {firebaseData.email
+                  {firestoreData.email
                     ? `Firestore has now these values: ${JSON.stringify(
-                        firebaseData
+                        firestoreData
                       )}`
                     : "Test updating Firestore with the current form values..."}
                 </p>

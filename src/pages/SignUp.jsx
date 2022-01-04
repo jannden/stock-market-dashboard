@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -10,20 +11,20 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { auth } from "../helpers/firebase";
-import { useAuth } from "../helpers/AuthContext";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const SignUp = function SignUp() {
-  const authToolkit = useAuth();
+  const currentUser = useSelector((state) => state.currentUser);
 
-  const [formLoading, setFormLoading] = React.useState(false);
-  const [formError, setFormError] = React.useState();
-  const [formSuccess, setFormSuccess] = React.useState();
-  const [formValidated, setFormValidated] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    email: authToolkit.currentUser?.email || "",
-    displayName: authToolkit.currentUser?.displayName || "",
-    photoURL: authToolkit.currentUser?.photoURL || "",
+    formLoading: false,
+    formError: null,
+    formSuccess: null,
+    formValidated: false,
+    email: currentUser.email || "",
+    displayName: currentUser.displayName || "",
+    photoURL: currentUser.photoURL || "",
     newPassword1: "",
     newPassword2: "",
     oldPassword: "",
@@ -38,65 +39,32 @@ const SignUp = function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
-    setFormValidated(true);
+    setFormData({ ...formData, formValidated: true });
     if (form.checkValidity() === false) {
       event.stopPropagation();
       return null;
     }
-    if (
-      (formData.newPassword1 || formData.newPassword2) &&
-      formData.newPassword1 !== formData.newPassword2
-    ) {
-      setFormError("The passwords don't match.");
-      return null;
-    }
+    setFormData({ ...formData, formLoading: true });
 
-    setFormLoading(true);
-    /*
-    const credential = authToolkit.EmailAuthProvider.credential(
-      authToolkit.currentUser.email,
-      formData.oldPassword
-    );
-    reauthenticateWithCredential(auth.currentUser, credential)
-      .then(() =>
-        formData.email !== authToolkit.currentUser.email
-          ? authToolkit.handleUpdateEmail(formData.email)
-          : true
-      )
-      .then(() =>
-        formData.password1
-          ? authToolkit.handleUpdatePassword(formData.password1.current.value)
-          : true
-      )
-      */
-    authToolkit
-      .handleSignUp(formData.email, formData.newPassword1)
-      .then(() =>
-        authToolkit.handleUpdateProfile(formData.displayName, formData.photoURL)
-      )
-      .then(() => auth.currentUser.reload())
-      .then(() => {
-        const data = {
-          displayName: auth.currentUser.displayName,
-          email: auth.currentUser.email,
-          photoURL: auth.currentUser.photoURL,
-        };
-        authToolkit.setCurrentUser(data);
-        setFormSuccess("Changes to your profile were saved.");
-      })
-      .catch((firebaseError) => {
-        const errorCode = firebaseError.code;
-        setFormError(`There was an error: ${errorCode}.`);
-      })
-      .finally(() => {
-        setFormLoading(false);
-        setFormValidated(false);
-        setTimeout(() => {
-          setFormSuccess("");
-          setFormError("");
-        }, 5000);
+    // We don't need to dispatch userData to Redux from here, as it is taken care of in onAuthStateChanged (App.jsx)
+    createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.newPassword1
+    ).catch((firebaseError) => {
+      setFormData({
+        ...formData,
+        formLoading: false,
+        formValidated: false,
+        formError: `There was an error: ${firebaseError.code}.`,
       });
-
+      setTimeout(() => {
+        setFormData({
+          ...formData,
+          formError: "",
+        });
+      }, 3000);
+    });
     return null;
   };
   return (
@@ -106,11 +74,15 @@ const SignUp = function SignUp() {
           <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Sign Up</h2>
-              {formError && <Alert variant="danger">{formError}</Alert>}
-              {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
+              {formData.formError && (
+                <Alert variant="danger">{formData.formError}</Alert>
+              )}
+              {formData.formSuccess && (
+                <Alert variant="success">{formData.formSuccess}</Alert>
+              )}
               <Form
                 noValidate
-                validated={formValidated}
+                validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
                 <Form.Group id="email" className="mb-3">
@@ -123,25 +95,6 @@ const SignUp = function SignUp() {
                     name="email"
                   />
                 </Form.Group>
-                <Form.Group id="displayName" className="mb-3">
-                  <Form.Label>Display Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    required
-                    value={formData.displayName}
-                    onChange={handleChange}
-                    name="displayName"
-                  />
-                </Form.Group>
-                <Form.Group id="photoURL" className="mb-3">
-                  <Form.Label>Photo URL</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.photoURL}
-                    onChange={handleChange}
-                    name="photoURL"
-                  />
-                </Form.Group>
                 <Form.Group id="password" className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
@@ -149,7 +102,6 @@ const SignUp = function SignUp() {
                     value={formData.newPassword1}
                     onChange={handleChange}
                     name="newPassword1"
-                    placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
                 <Form.Group id="password-confirm" className="mb-3">
@@ -159,40 +111,11 @@ const SignUp = function SignUp() {
                     value={formData.newPassword2}
                     onChange={handleChange}
                     name="newPassword2"
-                    placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
-                {/*
-                <p className="text-center fs-4 mb-3">
-                  Ready to update your profile?
-                </p>
-                <p className="text-center mb-3">
-                  To save changes, please verify your old password.
-                </p>
-                <InputGroup className="mb-3">
-                  <FormControl
-                    placeholder="Your old password"
-                    aria-describedby="submit-button"
-                    required
-                    type="password"
-                    name="oldPassword"
-                    value={formData.oldPassword}
-                    onChange={handleChange}
-                  />
-                  <Button
-                    disabled={formLoading}
-                    variant="primary"
-                    id="submit-button"
-                    type="submit"
-                  >
-                    Update your profile
-                  </Button>
-                </InputGroup>
-                
-                */}
                 <div className="text-center">
                   <Button
-                    disabled={formLoading}
+                    disabled={formData.formLoading}
                     variant="primary"
                     id="submit-button"
                     type="submit"
@@ -201,19 +124,6 @@ const SignUp = function SignUp() {
                   </Button>
                 </div>
               </Form>
-              {/*
-              <div className="text-center">
-                <div className="fs-4 mb-3">Ready to leave?</div>
-                <Button
-                  className=""
-                  variant="outline-secondary"
-                  type="button"
-                  onClick={authToolkit.handleSignOut}
-                >
-                  Sign out
-                </Button>
-              </div>
-              */}
             </Card.Body>
           </Card>
         </Col>

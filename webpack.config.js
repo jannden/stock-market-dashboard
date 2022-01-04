@@ -53,9 +53,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./build"),
     filename: "bundle.js",
+    publicPath: "/", // necessary to make react-router-dom subpages work on refresh
   },
   devServer: {
     static: path.resolve(__dirname, "./build"),
+    historyApiFallback: true, // necessary to make react-router-dom subpages work on refresh
   },
   devtool: "source-map",
 };

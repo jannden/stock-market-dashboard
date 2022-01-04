@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -10,20 +11,20 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 // Firebase
-import { auth } from "../helpers/firebase";
-import { useAuth } from "../helpers/AuthContext";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const LogIn = function LogIn() {
-  const authToolkit = useAuth();
+  const currentUser = useSelector((state) => state.currentUser);
 
-  const [formLoading, setFormLoading] = React.useState(false);
-  const [formError, setFormError] = React.useState();
-  const [formSuccess, setFormSuccess] = React.useState();
-  const [formValidated, setFormValidated] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    email: authToolkit.currentUser?.email || "",
-    displayName: authToolkit.currentUser?.displayName || "",
-    photoURL: authToolkit.currentUser?.photoURL || "",
+    formLoading: false,
+    formError: null,
+    formSuccess: null,
+    formValidated: false,
+    email: currentUser.email || "",
+    displayName: currentUser.displayName || "",
+    photoURL: currentUser.photoURL || "",
     newPassword1: "",
     newPassword2: "",
     oldPassword: "",
@@ -32,41 +33,38 @@ const LogIn = function LogIn() {
   const handleChange = (event) => {
     const fieldName = event.target.name;
     const fieldValue = event.target.value;
-    setFormData(() => ({ ...formData, [fieldName]: fieldValue }));
+    setFormData({ ...formData, [fieldName]: fieldValue });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
-    setFormValidated(true);
+    setFormData({ ...formData, formValidated: true });
     if (form.checkValidity() === false) {
       event.stopPropagation();
       return null;
     }
-    setFormLoading(true);
-    authToolkit
-      .handleSignIn(formData.email, formData.newPassword1)
-      .then(() => auth.currentUser.reload())
-      .then(() => {
-        const data = {
-          displayName: auth.currentUser.displayName,
-          email: auth.currentUser.email,
-          photoURL: auth.currentUser.photoURL,
-        };
-        authToolkit.setCurrentUser(data);
-      })
-      .catch((firebaseError) => {
-        const errorCode = firebaseError.code;
-        setFormError(`There was an error: ${errorCode}.`);
-      })
-      .finally(() => {
-        setFormLoading(false);
-        setFormValidated(false);
-        setTimeout(() => {
-          setFormSuccess("");
-          setFormError("");
-        }, 5000);
+    setFormData({ ...formData, formLoading: true });
+
+    // We don't need to dispatch userData to Redux from here, as it is taken care of in onAuthStateChanged (App.jsx)
+    signInWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.newPassword1
+    ).catch((firebaseError) => {
+      setFormData({
+        ...formData,
+        formLoading: false,
+        formValidated: false,
+        formError: `There was an error: ${firebaseError.code}.`,
       });
+      setTimeout(() => {
+        setFormData({
+          ...formData,
+          formError: "",
+        });
+      }, 3000);
+    });
 
     return null;
   };
@@ -77,11 +75,12 @@ const LogIn = function LogIn() {
           <Card className="mb-4">
             <Card.Body>
               <h2 className="text-center mb-4">Log In</h2>
-              {formError && <Alert variant="danger">{formError}</Alert>}
-              {formSuccess && <Alert variant="success">{formSuccess}</Alert>}
+              {formData.formError && (
+                <Alert variant="danger">{formData.formError}</Alert>
+              )}
               <Form
                 noValidate
-                validated={formValidated}
+                validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
                 <Form.Group id="email" className="mb-3">
@@ -101,12 +100,11 @@ const LogIn = function LogIn() {
                     value={formData.newPassword1}
                     onChange={handleChange}
                     name="newPassword1"
-                    placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
                 <div className="text-center">
                   <Button
-                    disabled={formLoading}
+                    disabled={formData.formLoading}
                     variant="primary"
                     id="submit-button"
                     type="submit"

@@ -10,9 +10,9 @@ import {
   Toolbar,
   InputAdornment,
 } from "@material-ui/core";
-import useTable from "./useTable";
+import useTable from "../hooks/useTable";
 import { Search } from "@material-ui/icons";
-import stocksData from "./stocks";
+import stocksData from "../stocks";
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {

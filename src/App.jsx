@@ -1,51 +1,69 @@
 import React from "react";
 
+// React-Redux
+import { Provider } from "react-redux";
+
 // Routing
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+
+// Firebase and Firestore
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
 
 // Bootstrap
-import Header from "./helpers/Header";
+import Header from "./components/Header";
 
 // Components
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Profile from "./pages/Profile";
+import { RequireAuth, RequireNotAuth } from "./components/ProtectedRoutes";
 
-import { AuthProvider, useAuth } from "./helpers/AuthContext";
-
-const RequireAuth = function RequireAuth() {
-  const { currentUser } = useAuth();
-  if (!currentUser) {
-    return <Navigate to="/log-in" />;
-  }
-  return <Outlet />;
-};
-
-const RequireNotAuth = function RequireNotAuth() {
-  const { currentUser } = useAuth();
-  if (currentUser) {
-    return <Navigate to="/profile" />;
-  }
-  return <Outlet />;
-};
+// Redux
+import store from "./store";
+import { setUser, unsetUser } from "./actions/userActions";
 
 const App = function App() {
+  // When Firebase finishes verifying the auth state, we can set our user state and turn off loading phase
+  // Having loading phase here in AuthProvider prevents the App to blink at the initial paint
+  const [initialLoading, setInitialLoading] = React.useState(true);
+  React.useEffect(
+    () =>
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const data = {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+          };
+          store.dispatch(setUser(data));
+        } else {
+          store.dispatch(unsetUser());
+        }
+        setInitialLoading(false);
+      }),
+    []
+  );
+
   return (
     <div>
-      <AuthProvider>
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route element={<RequireNotAuth />}>
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/log-in" element={<LogIn />} />
-          </Route>
-          <Route element={<RequireAuth />}>
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
+      {!initialLoading && (
+        <Provider store={store}>
+          <Header />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route element={<RequireNotAuth />}>
+              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/log-in" element={<LogIn />} />
+            </Route>
+            <Route element={<RequireAuth />}>
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </Provider>
+      )}
     </div>
   );
 };
