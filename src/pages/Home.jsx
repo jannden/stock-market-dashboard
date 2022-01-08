@@ -9,6 +9,7 @@ import Card from "react-bootstrap/Card";
 // Components
 import Table from "../components/Table";
 import Controls from "../components/Controls";
+import Chart from "../components/Chart";
 
 const Home = function Home() {
   return (
@@ -24,7 +25,7 @@ const Home = function Home() {
         <Col>
           <Card>
             <Card.Body>
-              <Card.Text>Here will be the chart</Card.Text>
+              <Chart />
             </Card.Body>
           </Card>
         </Col>
