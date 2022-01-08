@@ -1,7 +1,8 @@
 /* eslint-disable */
 import React, { useState } from "react";
-import PeopleOutlineTwoToneIcon from "@material-ui/icons/PeopleOutlineTwoTone";
 import FormControl from "react-bootstrap/FormControl";
+import { useDispatch, useSelector } from "react-redux";
+import chosenStockData from "../actions/ChosenStockActions";
 import {
   makeStyles,
   TableBody,
@@ -12,7 +13,7 @@ import {
 } from "@material-ui/core";
 import useTable from "../hooks/useTable";
 import { Search } from "@material-ui/icons";
-import stocksData from "../stocks";
+import symbols from "../../data/stocks";
 
 const useStyles = makeStyles((theme) => ({
   pageContent: {
@@ -36,9 +37,10 @@ const headCells = [
 ];
 
 export default function Table() {
-  const [stocks] = useState([...stocksData]);
+  const [stocks] = useState([...symbols]);
   const classes = useStyles();
-  const [records, setRecords] = useState([...stocksData]);
+  const [records, setRecords] = useState([...symbols]);
+  const [symbol, setSymbol] = useState("");
   const [filterFn, setFilterFn] = useState({
     fn: (stocks) => {
       return stocks;
@@ -60,6 +62,8 @@ export default function Table() {
       },
     });
   };
+
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -84,7 +88,10 @@ export default function Table() {
         <TblHead />
         <TableBody>
           {recordsAfterPagingAndSorting().map((stock) => (
-            <TableRow key={stock.id}>
+            <TableRow
+              key={stock.id}
+              onClick={() => dispatch(chosenStockData(stock.symbol))}
+            >
               <TableCell>{stock.symbol}</TableCell>
               <TableCell>{stock.name}</TableCell>
               <TableCell>{stock.price}</TableCell>
