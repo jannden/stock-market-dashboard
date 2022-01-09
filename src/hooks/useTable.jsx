@@ -27,8 +27,6 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: "#fffbf2",
       cursor: "pointer",
     },
-    width: "95%",
-    display: "block",
     overflow: "auto",
     margin: 0,
   },

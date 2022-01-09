@@ -14,9 +14,9 @@ import Chart from "../components/Chart";
 const Home = function Home() {
   return (
     <Container>
-      <Row className="mb-2">
-        <Col xs={4}>
-          <Card>
+      <Row>
+        <Col className="mb-4">
+          <Card className="mb-4">
             <Card.Body>
               <Controls />
             </Card.Body>

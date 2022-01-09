@@ -10,10 +10,10 @@ const eslintOptions = {
   exclude: ["/node_modules/", "/.husky/"],
 };
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+const isProduction = process.env.NODE_ENV !== "development";
 
 module.exports = {
-  mode: isDevelopment ? "development" : "production",
+  mode: !isProduction ? "development" : "production",
   entry: path.resolve(__dirname, "./src/index.jsx"),
   module: {
     rules: [
@@ -25,7 +25,7 @@ module.exports = {
             loader: require.resolve("babel-loader"),
             options: {
               plugins: [
-                isDevelopment && require.resolve("react-refresh/babel"),
+                !isProduction && require.resolve("react-refresh/babel"),
               ].filter(Boolean),
             },
           },
@@ -38,7 +38,7 @@ module.exports = {
     ],
   },
   plugins: [
-    isDevelopment && new ReactRefreshWebpackPlugin(),
+    !isProduction && new ReactRefreshWebpackPlugin(),
     new ESLintPlugin(eslintOptions),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -53,7 +53,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./build"),
     filename: "bundle.js",
-    publicPath: isDevelopment ? "/" : "/stock-market-dashboard/", // necessary to make react-router-dom subpages work on refresh
+    publicPath: !isProduction ? "/" : "/stock-market-dashboard/", // necessary to make react-router-dom subpages work on refresh
   },
   devServer: {
     static: path.resolve(__dirname, "./build"),

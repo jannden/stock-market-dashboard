@@ -1,13 +1,13 @@
 import { SELECTED_STOCK } from "../actions/types";
+import symbols from "../../data/stocks";
 
-export default function chosenStockReducer(state = {}, action = {}) {
+export default function chosenStockReducer(
+  state = symbols[0].symbol,
+  action = {}
+) {
   switch (action.type) {
     case SELECTED_STOCK:
-      console.log(action.payload.stockSymbol);
-      return {
-        ...state,
-        [action.payload.stockSymbol]: action.payload.stockSymbol,
-      };
+      return action.payload.stockSymbol;
     default:
       return state;
   }
