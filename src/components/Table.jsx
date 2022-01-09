@@ -1,19 +1,20 @@
-/* eslint-disable */
 import React, { useState } from "react";
-import PeopleOutlineTwoToneIcon from "@material-ui/icons/PeopleOutlineTwoTone";
 import FormControl from "react-bootstrap/FormControl";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  makeStyles,
+  // makeStyles,
   TableBody,
   TableRow,
   TableCell,
   Toolbar,
   InputAdornment,
 } from "@material-ui/core";
-import useTable from "../hooks/useTable";
 import { Search } from "@material-ui/icons";
-import stocksData from "../stocks";
+import chosenStockData from "../actions/chosenStockActions";
+import useTable from "../hooks/useTable";
+import symbols from "../../data/stocks";
 
+/*
 const useStyles = makeStyles((theme) => ({
   pageContent: {
     margin: theme.spacing(5),
@@ -23,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     width: "75%",
   },
 }));
+*/
 
 const headCells = [
   { id: "symbol", label: "Symbol" },
@@ -30,36 +32,34 @@ const headCells = [
   { id: "price", label: "Price" },
   { id: "change", label: "Change" },
   { id: "volume", label: "Volume" },
-  { id: "average", label: "Average Volume" },
-  { id: "capital", label: "Capital" },
-  { id: "ratio", label: "PE Ratio", disableSorting: true },
 ];
 
-export default function Table() {
-  const [stocks] = useState([...stocksData]);
-  const classes = useStyles();
-  const [records, setRecords] = useState([...stocksData]);
+const Table = function Table() {
+  const selectedStock = useSelector((state) => state.chosenStock);
+
+  // const [stocks] = useState([...symbols]);
+  // const classes = useStyles();
+  // const [records] = useState([...symbols]);
+  // const [symbol, setSymbol] = useState("");
   const [filterFn, setFilterFn] = useState({
-    fn: (stocks) => {
-      return stocks;
-    },
+    fn: (stocks) => stocks,
   });
 
   const { TblContainer, TblHead, TblPagination, recordsAfterPagingAndSorting } =
-    useTable(records, headCells, filterFn);
+    useTable([...symbols], headCells, filterFn);
 
   const handleSearch = (e) => {
-    let target = e.target;
     setFilterFn({
       fn: (stocks) => {
-        if (target.value == "") return stocks;
-        else
-          return stocks.filter((x) =>
-            x.name.toLowerCase().includes(target.value)
-          );
+        if (e.target.value === "") return stocks;
+        return stocks.filter((x) =>
+          x.name.toLowerCase().includes(e.target.value)
+        );
       },
     });
   };
+
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -68,7 +68,6 @@ export default function Table() {
         <FormControl
           type="search"
           placeholder="Search"
-          className="me-2"
           aria-label="Search"
           inputprops={{
             startAdornment: (
@@ -84,15 +83,16 @@ export default function Table() {
         <TblHead />
         <TableBody>
           {recordsAfterPagingAndSorting().map((stock) => (
-            <TableRow key={stock.id}>
+            <TableRow
+              key={stock.id}
+              selected={stock.symbol === selectedStock}
+              onClick={() => dispatch(chosenStockData(stock.symbol))}
+            >
               <TableCell>{stock.symbol}</TableCell>
               <TableCell>{stock.name}</TableCell>
               <TableCell>{stock.price}</TableCell>
               <TableCell>{stock.change}</TableCell>
               <TableCell>{stock.volume}</TableCell>
-              <TableCell>{stock.average}</TableCell>
-              <TableCell>{stock.capital}</TableCell>
-              <TableCell>{stock.ratio}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -100,4 +100,6 @@ export default function Table() {
       <TblPagination />
     </>
   );
-}
+};
+
+export default Table;

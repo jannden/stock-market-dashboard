@@ -14,11 +14,16 @@ import Chart from "../components/Chart";
 const Home = function Home() {
   return (
     <Container>
-      <Row className="mb-4">
-        <Col xs={3}>
-          <Card>
+      <Row>
+        <Col className="mb-4">
+          <Card className="mb-4">
             <Card.Body>
               <Controls />
+            </Card.Body>
+          </Card>
+          <Card>
+            <Card.Body>
+              <Table />
             </Card.Body>
           </Card>
         </Col>
@@ -26,15 +31,6 @@ const Home = function Home() {
           <Card>
             <Card.Body>
               <Chart />
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Card>
-            <Card.Body>
-              <Table />
             </Card.Body>
           </Card>
         </Col>

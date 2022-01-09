@@ -3,16 +3,18 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactApexChart from "react-apexcharts";
 
+// Bootstrap
+import Spinner from "react-bootstrap/Spinner";
+
 // Redux action creators
 import addStockData from "../actions/stockDataActions";
 
 // Design for the chart
 import chartOptions from "./chartOptions";
 
-const stocks = ["AAPL", "IBM", "MSFT"];
-
 const StocksChart = function StocksChart() {
-  const [selectedStock, setsSelectedStock] = React.useState("AAPL");
+  const selectedStock = useSelector((state) => state.chosenStock);
+
   const dispatch = useDispatch();
   const stockDataFromRedux = useSelector(
     (state) => state.stockData[selectedStock]
@@ -29,7 +31,6 @@ const StocksChart = function StocksChart() {
     const lastTradingWeekDay = new Date(currentDate.setDate(tradingWeekDay))
       .toISOString()
       .split("T")[0];
-
     if (
       stockDataFromStorage?.[selectedStock]?.seriesCandle?.[0]?.data?.[0]?.x ===
       lastTradingWeekDay
@@ -79,11 +80,11 @@ const StocksChart = function StocksChart() {
               })
             );
           } else {
-            throw new Error({ name: "Wrong data received.", message: data });
+            throw new Error(JSON.stringify(data));
           }
         })
         .catch((error) => {
-          console.log("Alpha Vantage Error", error);
+          console.log("Alpha Vantage ", error);
         });
     }
   }, [dispatch, selectedStock]);
@@ -92,6 +93,7 @@ const StocksChart = function StocksChart() {
     <div>
       {stockDataFromRedux && (
         <div className="chart-box">
+          <h2>{selectedStock}</h2>
           <div id="chart-candlestick">
             <ReactApexChart
               options={chartOptions.optionsCandle}
@@ -110,10 +112,12 @@ const StocksChart = function StocksChart() {
               width="100%"
             />
           </div>
-          <button onClick={() => setsSelectedStock(stocks.pop())} type="button">
-            Click
-          </button>
         </div>
+      )}
+      {!stockDataFromRedux && (
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
       )}
     </div>
   );

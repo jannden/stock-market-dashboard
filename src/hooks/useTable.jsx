@@ -13,18 +13,26 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   table: {
-    marginTop: theme.spacing(3),
     "& thead th": {
-      fontWeight: "600",
+      fontWeight: "100",
       color: "white",
       backgroundColor: "#0d6efd",
+      padding: "6px",
     },
     "& tbody td": {
-      fontWeight: "300",
+      fontWeight: "100",
+      padding: "6px",
     },
     "& tbody tr:hover": {
       backgroundColor: "#fffbf2",
       cursor: "pointer",
+    },
+    overflow: "auto",
+    margin: 0,
+  },
+  root: {
+    ".MuiTablePagination-root": {
+      overflow: "hidden",
     },
   },
 }));
@@ -98,8 +106,6 @@ export default function useTable(records, headCells, filterFn) {
     />
   );
 
-  /* to be fixed for numbers */
-
   function stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
@@ -110,17 +116,31 @@ export default function useTable(records, headCells, filterFn) {
     return stabilizedThis.map((el) => el[0]);
   }
 
+  //order of display
   function getComparator(order, orderBy) {
     return order === "desc"
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy);
   }
 
+  function getDigitsFromString(str) {
+    str = str.replace(/[^\d.-]/g, "");
+    return parseInt(str);
+  }
+
   function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
+    //sort for digits
+    if (orderBy !== "symbol" && orderBy !== "name" && orderBy != undefined) {
+      var tmpA = getDigitsFromString(a[orderBy]);
+      var tmpB = getDigitsFromString(b[orderBy]);
+      if (tmpA > tmpB) return -1;
+      if (tmpA < tmpB) return 1;
+    }
+    //sort for strings
+    if (a[orderBy] > b[orderBy]) {
       return -1;
     }
-    if (b[orderBy] > a[orderBy]) {
+    if (a[orderBy] < b[orderBy]) {
       return 1;
     }
     return 0;
