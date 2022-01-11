@@ -36,7 +36,9 @@ const headCells = [
 
 const Table = function Table() {
   const selectedStock = useSelector((state) => state.chosenStock);
-
+  const stockDataFromRedux = useSelector(
+    (state) => state.stockData[selectedStock]
+  );
   // const [stocks] = useState([...symbols]);
   // const classes = useStyles();
   // const [records] = useState([...symbols]);
@@ -90,9 +92,24 @@ const Table = function Table() {
             >
               <TableCell>{stock.symbol}</TableCell>
               <TableCell>{stock.name}</TableCell>
-              <TableCell>{stock.price}</TableCell>
-              <TableCell>{stock.change}</TableCell>
-              <TableCell>{stock.volume}</TableCell>
+              {stockDataFromRedux && stock.symbol === selectedStock && (
+                <>
+                  <TableCell>
+                    {stockDataFromRedux.seriesCandle[0].data[0].y[0]}
+                  </TableCell>
+                  <TableCell>{stock.change}</TableCell>
+                  <TableCell>
+                    {stockDataFromRedux.seriesBar[0].data[0].y}
+                  </TableCell>
+                </>
+              )}
+              {(!stockDataFromRedux || stock.symbol !== selectedStock) && (
+                <>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
+                </>
+              )}
             </TableRow>
           ))}
         </TableBody>
