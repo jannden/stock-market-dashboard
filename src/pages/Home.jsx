@@ -8,19 +8,13 @@ import Card from "react-bootstrap/Card";
 
 // Components
 import Table from "../components/Table";
-import Controls from "../components/Controls";
 import Chart from "../components/Chart";
 
 const Home = function Home() {
   return (
     <Container>
       <Row>
-        <Col className="mb-4">
-          <Card className="mb-4">
-            <Card.Body>
-              <Controls />
-            </Card.Body>
-          </Card>
+        <Col className="mb-4" xs={7}>
           <Card>
             <Card.Body>
               <Table />

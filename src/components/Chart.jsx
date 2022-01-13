@@ -10,7 +10,24 @@ import Spinner from "react-bootstrap/Spinner";
 import addStockData from "../actions/stockDataActions";
 
 // Design for the chart
-import chartOptions from "./chartOptions";
+import chartOptions from "../../data/chartOptions";
+
+export const getStockDataFromStorage = () => {
+  // Local storage for stock data to prevent unnecessary calls to the Alpha Ventage API
+  const stockDataFromStorageJSON = window.localStorage.getItem("stockData");
+  const stockDataFromStorage = JSON.parse(stockDataFromStorageJSON);
+  return stockDataFromStorage;
+};
+
+export const getLastTradingWeekDay = () => {
+  // Last week's trading day to check whether we have up-to-date stock data
+  const currentDate = new Date();
+  const tradingWeekDay = currentDate.getDate() - currentDate.getDay() - 2;
+  const lastTradingWeekDay = new Date(currentDate.setDate(tradingWeekDay))
+    .toISOString()
+    .split("T")[0];
+  return lastTradingWeekDay;
+};
 
 const StocksChart = function StocksChart() {
   const selectedStock = useSelector((state) => state.chosenStock);
@@ -21,19 +38,14 @@ const StocksChart = function StocksChart() {
   );
 
   React.useEffect(() => {
-    // Local storage for stock data to prevent unnecessary calls to the Alpha Ventage API
-    const stockDataFromStorageJSON = window.localStorage.getItem("stockData");
-    const stockDataFromStorage = JSON.parse(stockDataFromStorageJSON);
+    const stockDataFromStorage = getStockDataFromStorage();
+    const lastTradingWeekDay = getLastTradingWeekDay();
 
-    // Last week's trading day to check whether we have up-to-date stock data
-    const currentDate = new Date();
-    const tradingWeekDay = currentDate.getDate() - currentDate.getDay() - 2;
-    const lastTradingWeekDay = new Date(currentDate.setDate(tradingWeekDay))
-      .toISOString()
-      .split("T")[0];
     if (
       stockDataFromStorage?.[selectedStock]?.seriesCandle?.[0]?.data?.[0]?.x ===
-      lastTradingWeekDay
+        lastTradingWeekDay ||
+      stockDataFromStorage?.[selectedStock]?.seriesCandle?.[0]?.data?.[1]?.x ===
+        lastTradingWeekDay
     ) {
       dispatch(
         addStockData(selectedStock, stockDataFromStorage[selectedStock])
