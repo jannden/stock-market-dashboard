@@ -35,7 +35,7 @@ export default {
       },
       selection: {
         enabled: true,
-        xaxis: { max: 1512856800000, min: 1484863200000 },
+        xaxis: { max: 1640995200000, min: 1609459200000 },
         fill: { color: "#ccc", opacity: 0.4 },
         stroke: { color: "#0D47A1" },
       },

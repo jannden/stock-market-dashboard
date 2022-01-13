@@ -27,7 +27,7 @@ const StocksChart = function StocksChart() {
 
     // Last week's trading day to check whether we have up-to-date stock data
     const currentDate = new Date();
-    const tradingWeekDay = currentDate.getDate() - currentDate.getDay() + 5;
+    const tradingWeekDay = currentDate.getDate() - currentDate.getDay() - 2;
     const lastTradingWeekDay = new Date(currentDate.setDate(tradingWeekDay))
       .toISOString()
       .split("T")[0];

@@ -8,7 +8,13 @@ const Controls = function Controls() {
   return (
     <Form>
       <div className="mb-2 d-flex gap-2">
-        <Form.Control placeholder="Start date" />
+        <Form.Control
+          placeholder="Start date"
+          id="email"
+          onChange={(e) => {
+            e.target.value = "abc";
+          }}
+        />
         <Form.Control placeholder="End date" />
       </div>
       <div className="mb-2 d-flex gap-2">

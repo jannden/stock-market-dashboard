@@ -23,12 +23,10 @@ const LogIn = function LogIn() {
     formSuccess: null,
     formValidated: false,
     email: currentUser.email || "",
-    displayName: currentUser.displayName || "",
-    photoURL: currentUser.photoURL || "",
-    newPassword1: "",
-    newPassword2: "",
-    oldPassword: "",
+    password: "",
   });
+
+  const testCheck = () => true;
 
   const handleChange = (event) => {
     const fieldName = event.target.name;
@@ -37,7 +35,7 @@ const LogIn = function LogIn() {
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
+    if (testCheck) event.preventDefault();
     const form = event.currentTarget;
     setFormData({ ...formData, formValidated: true });
     if (form.checkValidity() === false) {
@@ -47,24 +45,22 @@ const LogIn = function LogIn() {
     setFormData({ ...formData, formLoading: true });
 
     // We don't need to dispatch userData to Redux from here, as it is taken care of in onAuthStateChanged (App.jsx)
-    signInWithEmailAndPassword(
-      auth,
-      formData.email,
-      formData.newPassword1
-    ).catch((firebaseError) => {
-      setFormData({
-        ...formData,
-        formLoading: false,
-        formValidated: false,
-        formError: `There was an error: ${firebaseError.code}.`,
-      });
-      setTimeout(() => {
+    signInWithEmailAndPassword(auth, formData.email, formData.password).catch(
+      (firebaseError) => {
         setFormData({
           ...formData,
-          formError: "",
+          formLoading: false,
+          formValidated: false,
+          formError: `There was an error: ${firebaseError.code}.`,
         });
-      }, 3000);
-    });
+        setTimeout(() => {
+          setFormData({
+            ...formData,
+            formError: "",
+          });
+        }, 3000);
+      }
+    );
 
     return null;
   };
@@ -83,31 +79,38 @@ const LogIn = function LogIn() {
                 validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
-                <Form.Group id="email" className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                <Form.Group className="mb-3">
+                  <Form.Label htmlFor="email">Email</Form.Label>
                   <Form.Control
                     type="email"
                     required
                     value={formData.email}
                     onChange={handleChange}
                     name="email"
+                    id="email"
                   />
                 </Form.Group>
-                <Form.Group id="password" className="mb-3">
-                  <Form.Label>Password</Form.Label>
+                <Form.Group className="mb-3">
+                  <Form.Label htmlFor="password">Password</Form.Label>
                   <Form.Control
                     type="password"
-                    value={formData.newPassword1}
+                    value={formData.password}
                     onChange={handleChange}
-                    name="newPassword1"
+                    name="password"
+                    id="password"
                   />
                 </Form.Group>
                 <div className="text-center">
                   <Button
-                    disabled={formData.formLoading}
+                    disabled={
+                      formData.formLoading ||
+                      formData.email === "" ||
+                      formData.password === ""
+                    }
                     variant="primary"
-                    id="submit-button"
+                    id="submit"
                     type="submit"
+                    name="submit"
                   >
                     Log In
                   </Button>

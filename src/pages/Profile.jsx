@@ -105,7 +105,9 @@ const Profile = function Profile() {
         <Col className="col-lg-6 col-md-10 mx-auto">
           <Card className="mb-4">
             <Card.Body>
-              <h2 className="text-center mb-4">Update Profile</h2>
+              <h2 className="text-center mb-4" id="profile">
+                Update Profile
+              </h2>
               {formData.formError && (
                 <Alert variant="danger">{formData.formError}</Alert>
               )}
