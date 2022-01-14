@@ -12,19 +12,50 @@ import Image from "react-bootstrap/Image";
 
 const UserNav = function UserNav() {
   const currentUser = useSelector((state) => state.currentUser);
+  const stockDataFromRedux = useSelector((state) => state.stockData);
   const { displayName, photoURL } = currentUser;
   const avatarLetters = displayName || "☺";
   const avatar =
     photoURL || `https://eu.ui-avatars.com/api/?name=${avatarLetters}`;
+
+  const daysAgo = 0;
+  const portfolioValue =
+    !currentUser.firestore?.stockUnits || !currentUser.firestore?.wallet
+      ? 0
+      : currentUser.firestore.wallet +
+        Object.keys(currentUser.firestore.stockUnits).reduce((next, key) => {
+          if (!next.toString().includes("Missing data")) {
+            if (!currentUser.firestore.stockUnits[key]) {
+              return next;
+            }
+            if (!stockDataFromRedux[key]?.seriesCandle?.[0].data[0].y[3]) {
+              return "Missing data";
+            }
+            return (
+              next +
+              currentUser.firestore.stockUnits[key] *
+                stockDataFromRedux[key].seriesCandle[0].data[daysAgo].y[3]
+            );
+          }
+          return next;
+        }, 0);
   return (
-    <Link to="/profile">
-      <Image
-        to="/profile"
-        src={avatar}
-        roundedCircle
-        style={{ maxHeight: "30px", maxWidth: "30px" }}
-      />
-    </Link>
+    <>
+      <Navbar.Text className="me-3">
+        Portfolio value:{" "}
+        {portfolioValue.toString().includes("Missing data")
+          ? "Missing data"
+          : portfolioValue}
+      </Navbar.Text>
+      <Link to="/profile">
+        <Image
+          to="/profile"
+          src={avatar}
+          roundedCircle
+          style={{ maxHeight: "30px", maxWidth: "30px" }}
+        />
+      </Link>
+    </>
   );
 };
 

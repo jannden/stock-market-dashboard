@@ -9,12 +9,14 @@ import {
   Toolbar,
   InputAdornment,
 } from "@material-ui/core";
+import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { Search } from "@material-ui/icons";
 import chosenStockData from "../actions/chosenStockActions";
 import useTable from "../hooks/useTable";
 import symbols from "../../data/stocks";
-import { getStockDataFromStorage, getLastTradingWeekDay } from "./Chart";
+import ModalForm from "./ModalForm";
+import { getStockDataFromStorage, getYesterday } from "./Chart";
 
 // Redux action creators
 import addStockData from "../actions/stockDataActions";
@@ -36,12 +38,12 @@ const headCells = [
   { id: "price", label: "Price" },
   { id: "change", label: "Change" },
   { id: "volume", label: "Volume" },
-  { id: "buy", label: "" },
-  { id: "sell", label: "" },
+  { id: "actions", label: "" },
 ];
 
 const Table = function Table() {
   const selectedStock = useSelector((state) => state.chosenStock);
+  const currentUser = useSelector((state) => state.currentUser);
   const stockDataFromRedux = useSelector((state) => state.stockData);
   // const [stocks] = useState([...symbols]);
   // const classes = useStyles();
@@ -49,6 +51,10 @@ const Table = function Table() {
   // const [symbol, setSymbol] = useState("");
   const [filterFn, setFilterFn] = useState({
     fn: (stocks) => stocks,
+  });
+  const [modalAction, setModalAction] = React.useState({
+    modalOpened: false,
+    activeStock: null,
   });
 
   const { TblContainer, TblHead, TblPagination, recordsAfterPagingAndSorting } =
@@ -67,15 +73,23 @@ const Table = function Table() {
 
   const dispatch = useDispatch();
 
+  const handleStockAction = (activeStock, action) => {
+    setModalAction({
+      modalOpened: true,
+      activeStock,
+      action,
+    });
+  };
+
   React.useEffect(() => {
     const stockDataFromStorage = getStockDataFromStorage();
-    const lastTradingWeekDay = getLastTradingWeekDay();
+    const yesterdayDate = getYesterday();
     symbols.map((stock) => {
       if (
         stockDataFromStorage?.[stock.symbol]?.seriesCandle?.[0]?.data?.[0]
-          ?.x === lastTradingWeekDay ||
+          ?.x === yesterdayDate ||
         stockDataFromStorage?.[stock.symbol]?.seriesCandle?.[0]?.data?.[1]
-          ?.x === lastTradingWeekDay
+          ?.x === yesterdayDate
       ) {
         dispatch(
           addStockData(stock.symbol, stockDataFromStorage[stock.symbol])
@@ -152,19 +166,32 @@ const Table = function Table() {
                     m
                   </TableCell>
                   <TableCell>
-                    <Button variant="outline-primary" size="sm">
-                      Buy
-                    </Button>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline-primary" size="sm">
-                      Sell
-                    </Button>
+                    {currentUser.uid ? (
+                      <Button
+                        variant={
+                          currentUser.firestore?.stockUnits?.[stock.symbol]
+                            ? "primary"
+                            : "outline-primary"
+                        }
+                        size="sm"
+                        onClick={() => handleStockAction(stock.symbol)}
+                      >
+                        Buy / Sell
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        as={Link}
+                        to="/log-in"
+                      >
+                        Buy / Sell
+                      </Button>
+                    )}
                   </TableCell>
                 </>
               ) : (
                 <>
-                  <TableCell />
                   <TableCell />
                   <TableCell />
                   <TableCell />
@@ -176,6 +203,7 @@ const Table = function Table() {
         </TableBody>
       </TblContainer>
       <TblPagination />
+      <ModalForm modalAction={modalAction} setModalAction={setModalAction} />
     </>
   );
 };

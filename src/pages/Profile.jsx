@@ -14,8 +14,7 @@ import Alert from "react-bootstrap/Alert";
 
 // Firebase
 import { signOut } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { auth, db } from "../firebase";
+import { auth } from "../firebase";
 
 // Redux
 import { userUpdate } from "../actions/userActions";
@@ -68,36 +67,6 @@ const Profile = function Profile() {
   const handleSignout = () => {
     signOut(auth);
   };
-
-  // TESTING FIRESTORE SECTION
-  const createFirestore = async (newData) => {
-    try {
-      await setDoc(doc(db, "users", currentUser.uid), newData);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  };
-  const getFirestore = async () => {
-    try {
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return docSnap.data();
-      }
-      return { error: "User not found..." };
-    } catch (error) {
-      return { error };
-    }
-  };
-  const [firestoreData, setFirestoreData] = React.useState({});
-  const handleFirebase = () => {
-    createFirestore(formData)
-      .then(() => getFirestore())
-      .then((result) => {
-        setFirestoreData(result);
-      });
-  };
-  // END OF TESTING FIRESTORE SECTION
 
   return (
     <Container>
@@ -204,26 +173,6 @@ const Profile = function Profile() {
                 >
                   Sign out
                 </Button>
-              </div>
-
-              <div className="text-center">
-                <div className="fs-4 mb-3">Test firebase</div>
-                <Button
-                  disabled={formData.formLoading}
-                  variant="primary"
-                  id="firebase-button"
-                  type="submit"
-                  onClick={handleFirebase}
-                >
-                  Send to Firebase
-                </Button>
-                <p>
-                  {firestoreData.email
-                    ? `Firestore has now these values: ${JSON.stringify(
-                        firestoreData
-                      )}`
-                    : "Test updating Firestore with the current form values..."}
-                </p>
               </div>
             </Card.Body>
           </Card>
