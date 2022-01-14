@@ -8,7 +8,7 @@ import { Routes, Route } from "react-router-dom";
 
 // Firebase and Firestore
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth, readFirestore } from "./firebase";
 
 // Bootstrap
 import Header from "./components/Header";
@@ -32,17 +32,21 @@ const App = function App() {
     () =>
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          const data = {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-          };
-          store.dispatch(setUser(data));
+          readFirestore(user).then((result) => {
+            const data = {
+              uid: user.uid,
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              firestore: result,
+            };
+            store.dispatch(setUser(data));
+            setInitialLoading(false);
+          });
         } else {
           store.dispatch(unsetUser());
+          setInitialLoading(false);
         }
-        setInitialLoading(false);
       }),
     []
   );

@@ -23,6 +23,7 @@ export default {
     xaxis: {
       type: "datetime",
       convertedCatToNumeric: false,
+      xaxis: { max: +new Date(), min: +new Date() - 1000 * 60 * 60 * 24 * 28 },
     },
   },
   optionsBar: {
@@ -35,7 +36,10 @@ export default {
       },
       selection: {
         enabled: true,
-        xaxis: { max: 1512856800000, min: 1484863200000 },
+        xaxis: {
+          max: +new Date(),
+          min: +new Date() - 1000 * 60 * 60 * 24 * 28,
+        },
         fill: { color: "#ccc", opacity: 0.4 },
         stroke: { color: "#0D47A1" },
       },

@@ -9,11 +9,17 @@ import {
   Toolbar,
   InputAdornment,
 } from "@material-ui/core";
+import { Link } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 import { Search } from "@material-ui/icons";
 import chosenStockData from "../actions/chosenStockActions";
 import useTable from "../hooks/useTable";
 import symbols from "../../data/stocks";
+import ModalForm from "./ModalForm";
+import { getStockDataFromStorage, getYesterday } from "./Chart";
 
+// Redux action creators
+import addStockData from "../actions/stockDataActions";
 /*
 const useStyles = makeStyles((theme) => ({
   pageContent: {
@@ -32,19 +38,23 @@ const headCells = [
   { id: "price", label: "Price" },
   { id: "change", label: "Change" },
   { id: "volume", label: "Volume" },
+  { id: "actions", label: "" },
 ];
 
 const Table = function Table() {
   const selectedStock = useSelector((state) => state.chosenStock);
-  const stockDataFromRedux = useSelector(
-    (state) => state.stockData[selectedStock]
-  );
+  const currentUser = useSelector((state) => state.currentUser);
+  const stockDataFromRedux = useSelector((state) => state.stockData);
   // const [stocks] = useState([...symbols]);
   // const classes = useStyles();
   // const [records] = useState([...symbols]);
   // const [symbol, setSymbol] = useState("");
   const [filterFn, setFilterFn] = useState({
     fn: (stocks) => stocks,
+  });
+  const [modalAction, setModalAction] = React.useState({
+    modalOpened: false,
+    activeStock: null,
   });
 
   const { TblContainer, TblHead, TblPagination, recordsAfterPagingAndSorting } =
@@ -62,6 +72,32 @@ const Table = function Table() {
   };
 
   const dispatch = useDispatch();
+
+  const handleStockAction = (activeStock, action) => {
+    setModalAction({
+      modalOpened: true,
+      activeStock,
+      action,
+    });
+  };
+
+  React.useEffect(() => {
+    const stockDataFromStorage = getStockDataFromStorage();
+    const yesterdayDate = getYesterday();
+    symbols.map((stock) => {
+      if (
+        stockDataFromStorage?.[stock.symbol]?.seriesCandle?.[0]?.data?.[0]
+          ?.x === yesterdayDate ||
+        stockDataFromStorage?.[stock.symbol]?.seriesCandle?.[0]?.data?.[1]
+          ?.x === yesterdayDate
+      ) {
+        dispatch(
+          addStockData(stock.symbol, stockDataFromStorage[stock.symbol])
+        );
+      }
+      return true;
+    });
+  }, [dispatch]);
 
   return (
     <>
@@ -92,22 +128,74 @@ const Table = function Table() {
             >
               <TableCell>{stock.symbol}</TableCell>
               <TableCell>{stock.name}</TableCell>
-              {stockDataFromRedux && stock.symbol === selectedStock && (
+              {stockDataFromRedux?.[stock.symbol]?.seriesCandle[0]?.data[0] ? (
                 <>
                   <TableCell>
-                    {stockDataFromRedux.seriesCandle[0].data[0].y[0]}
+                    $
+                    {Math.round(
+                      Number(
+                        stockDataFromRedux?.[stock.symbol]?.seriesCandle[0]
+                          ?.data[0]?.y[3]
+                      ) * 100
+                    ) / 100}
                   </TableCell>
-                  <TableCell>{stock.change}</TableCell>
                   <TableCell>
-                    {stockDataFromRedux.seriesBar[0].data[0].y}
+                    {Math.round(
+                      Math.abs(
+                        100 -
+                          (Number(
+                            stockDataFromRedux?.[stock.symbol]?.seriesCandle[0]
+                              ?.data[1]?.y[3]
+                          ) /
+                            Number(
+                              stockDataFromRedux?.[stock.symbol]
+                                ?.seriesCandle[0]?.data[0]?.y[3]
+                            )) *
+                            100
+                      ) * 100
+                    ) / 100}
+                    %
+                  </TableCell>
+                  <TableCell>
+                    {Math.round(
+                      Number(
+                        stockDataFromRedux?.[stock.symbol]?.seriesBar[0]
+                          ?.data[0]?.y
+                      ) / 1000000
+                    )}
+                    m
+                  </TableCell>
+                  <TableCell>
+                    {currentUser.uid ? (
+                      <Button
+                        variant={
+                          currentUser.firestore?.stockUnits?.[stock.symbol]
+                            ? "primary"
+                            : "outline-primary"
+                        }
+                        size="sm"
+                        onClick={() => handleStockAction(stock.symbol)}
+                      >
+                        Buy / Sell
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        as={Link}
+                        to="/log-in"
+                      >
+                        Buy / Sell
+                      </Button>
+                    )}
                   </TableCell>
                 </>
-              )}
-              {(!stockDataFromRedux || stock.symbol !== selectedStock) && (
+              ) : (
                 <>
-                  <TableCell> </TableCell>
-                  <TableCell> </TableCell>
-                  <TableCell> </TableCell>
+                  <TableCell />
+                  <TableCell />
+                  <TableCell />
+                  <TableCell />
                 </>
               )}
             </TableRow>
@@ -115,6 +203,7 @@ const Table = function Table() {
         </TableBody>
       </TblContainer>
       <TblPagination />
+      <ModalForm modalAction={modalAction} setModalAction={setModalAction} />
     </>
   );
 };
