@@ -12,7 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { Search } from "@material-ui/icons";
-import chosenStockData from "../actions/chosenStockActions";
+import selectStock from "../actions/chosenStockActions";
 import useTable from "../hooks/useTable";
 import symbols from "../../data/stocks";
 import ModalForm from "./ModalForm";
@@ -124,7 +124,7 @@ const Table = function Table() {
             <TableRow
               key={stock.id}
               selected={stock.symbol === selectedStock}
-              onClick={() => dispatch(chosenStockData(stock.symbol))}
+              onClick={() => dispatch(selectStock(stock.symbol))}
             >
               <TableCell>{stock.symbol}</TableCell>
               <TableCell>{stock.name}</TableCell>

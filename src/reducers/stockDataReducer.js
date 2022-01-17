@@ -1,6 +1,6 @@
 import { ADD_STOCK_DATA } from "../actions/types";
 
-export default function userReducer(state = {}, action = {}) {
+export default function stockDataReducer(state = {}, action = {}) {
   switch (action.type) {
     case ADD_STOCK_DATA:
       return {
