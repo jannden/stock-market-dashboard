@@ -7,7 +7,4 @@ export default combineReducers({
   currentUser: userReducer,
   stockData: stockDataReducer,
   chosenStock: chosenStockReducer,
-  /*
-  chosenCurrency: chosenCurrencyReducer,
-  */
 });

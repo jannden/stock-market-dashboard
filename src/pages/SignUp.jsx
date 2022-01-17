@@ -73,7 +73,7 @@ const SignUp = function SignUp() {
         <Col className="col-lg-6 col-md-10 mx-auto">
           <Card className="mb-4">
             <Card.Body>
-              <h2 className="text-center mb-4">Sign Up</h2>
+              <h2 className="text-center mb-4">Hello! Please sign up.</h2>
               {formData.formError && (
                 <Alert variant="danger">{formData.formError}</Alert>
               )}

@@ -17,7 +17,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 
 // Redux
-import { userUpdate } from "../actions/userActions";
+import { updateUser } from "../actions/userActions";
 
 const Profile = function Profile() {
   const currentUser = useSelector((state) => state.currentUser);
@@ -43,23 +43,25 @@ const Profile = function Profile() {
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    setFormData({ ...formData, formValidated: true });
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-      return null;
+    if (event) {
+      // a condition due to mockStore in tests
+      event.preventDefault();
+      const form = event.currentTarget;
+      setFormData({ ...formData, formValidated: true });
+      if (form.checkValidity() === false) {
+        event.stopPropagation();
+        return null;
+      }
+      if (
+        (formData.newPassword1 || formData.newPassword2) &&
+        formData.newPassword1 !== formData.newPassword2
+      ) {
+        setFormData({ ...formData, formError: "The passwords don't match." });
+        return null;
+      }
+      setFormData({ ...formData, formLoading: true });
     }
-    if (
-      (formData.newPassword1 || formData.newPassword2) &&
-      formData.newPassword1 !== formData.newPassword2
-    ) {
-      setFormData({ ...formData, formError: "The passwords don't match." });
-      return null;
-    }
-    setFormData({ ...formData, formLoading: true });
-
-    dispatch(userUpdate(formData, setFormData));
+    dispatch(updateUser(formData, setFormData));
 
     return null;
   };
@@ -146,15 +148,18 @@ const Profile = function Profile() {
                 <InputGroup className="mb-3">
                   <FormControl
                     placeholder="Your old password"
-                    aria-describedby="submit-button"
                     required
                     type="password"
                     name="oldPassword"
                     value={formData.oldPassword}
                     onChange={handleChange}
+                    role="textbox"
+                    title="oldPassword"
                   />
                   <Button
-                    disabled={formData.formLoading}
+                    disabled={
+                      formData.formLoading || formData.oldPassword === ""
+                    }
                     variant="primary"
                     id="submit-button"
                     type="submit"

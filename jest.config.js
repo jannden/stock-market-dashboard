@@ -1,11 +1,12 @@
 module.exports = {
-  setupFilesAfterEnv: ["./src/setupTests.js"],
+  setupFilesAfterEnv: ["./enzyme.js"],
   moduleNameMapper: {
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<root>/__mocks__/fileMock.js",
     "\\.(css|less)$": "<root>/__mocks__/styleMock.js",
   },
   testEnvironment: "jsdom",
+  testRegex: "((\\.|/*.)(spec))\\.jsx?$",
 };
 process.env = Object.assign(process.env, {
   REACT_APP_FIREBASE_API_KEY: "AIzaSyCXd2qcm2mW-sz48qYtorIQaZ0EfGLU8dU",

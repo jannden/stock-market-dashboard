@@ -1,8 +1,8 @@
 import { SELECTED_STOCK } from "./types";
 
-const chosenStockData = (stockSymbol) => ({
+const selectStock = (stockSymbol) => ({
   type: SELECTED_STOCK,
   payload: { stockSymbol },
 });
 
-export default chosenStockData;
+export default selectStock;
