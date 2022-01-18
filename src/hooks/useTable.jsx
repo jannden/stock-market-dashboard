@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: "#fffbf2",
       cursor: "pointer",
     },
-    overflow: "auto",
+    overflow: "hidden",
     margin: 0,
   },
   root: {
@@ -65,7 +65,7 @@ export default function useTable(records, headCells, filterFn) {
               key={headCell.id}
               sortDirection={orderBy === headCell.id ? order : false}
             >
-              {headCell.disableSorting ? (
+              {headCell.id == "actions" ? (
                 headCell.label
               ) : (
                 <TableSortLabel
@@ -124,7 +124,7 @@ export default function useTable(records, headCells, filterFn) {
   }
 
   function getDigitsFromString(str) {
-    str = str.replace(/[^\d.-]/g, "");
+    str = str.toString().replace(/[^\d.-]/g, "");
     return parseInt(str);
   }
 
