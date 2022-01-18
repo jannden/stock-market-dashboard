@@ -38,7 +38,7 @@ const headCells = [
   { id: "price", label: "Price" },
   { id: "change", label: "Change" },
   { id: "volume", label: "Volume" },
-  { id: "actions", label: "" },
+  { id: "actions", label: "Action" },
 ];
 
 const Table = function Table() {
@@ -57,8 +57,49 @@ const Table = function Table() {
     activeStock: null,
   });
 
+  const newSymbols = [...symbols];
+
+  Object(symbols).map((stock) => {
+    const stockDataFromStorage1 = getStockDataFromStorage();
+    Object.assign(stock, {
+      price:
+        Math.round(
+          Number(
+            stockDataFromStorage1?.[Object(stock.symbol)]?.seriesCandle[0]
+              ?.data[0]?.y[3]
+          ) * 100
+        ) / 100,
+    });
+    Object.assign(stock, {
+      change:
+        Math.round(
+          Math.abs(
+            100 -
+              (Number(
+                stockDataFromStorage1?.[Object(stock.symbol)]?.seriesCandle[0]
+                  ?.data[1]?.y[3]
+              ) /
+                Number(
+                  stockDataFromStorage1?.[Object(stock.symbol)]?.seriesCandle[0]
+                    ?.data[0]?.y[3]
+                )) *
+                100
+          ) * 100
+        ) / 100,
+    });
+    Object.assign(stock, {
+      volume: Math.round(
+        Number(
+          stockDataFromStorage1?.[Object(stock.symbol)]?.seriesBar[0]?.data[0]
+            ?.y
+        ) / 1000000
+      ),
+    });
+    return true;
+  });
+
   const { TblContainer, TblHead, TblPagination, recordsAfterPagingAndSorting } =
-    useTable([...symbols], headCells, filterFn);
+    useTable(newSymbols, headCells, filterFn);
 
   const handleSearch = (e) => {
     setFilterFn({
