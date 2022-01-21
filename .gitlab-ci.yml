@@ -12,6 +12,7 @@ build:
   artifacts:
     paths:
       - build/ # Save the build result as an artifact
+      - node_modules/ # This will make the modules available to other dependent jobs
 
 test:
   image: node:latest # Run the job in a `node` docker image
