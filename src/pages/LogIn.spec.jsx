@@ -69,7 +69,11 @@ describe("INTEGRATION TESTS", () => {
   });
 
   test("Sign in should return logged in user from Firebase on correct credentials. ", async () => {
-    await signInWithEmailAndPassword(auth, "jest@example.com", "abc123");
+    try {
+      await signInWithEmailAndPassword(auth, "jest@example.com", "abc123");
+    } catch (err) {
+      console.log(err.toString());
+    }
     expect(auth.currentUser).toBeTruthy();
     expect(auth.currentUser.email).toBe("jest@example.com");
   });
