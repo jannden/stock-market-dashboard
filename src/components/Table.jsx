@@ -168,6 +168,7 @@ const Table = function Table() {
               key={stock.id}
               selected={stock.symbol === selectedStock}
               onClick={() => dispatch(selectStock(stock.symbol))}
+              id={stock.symbol.concat("-row")}
             >
               <TableCell>{stock.symbol}</TableCell>
               <TableCell>{stock.name}</TableCell>

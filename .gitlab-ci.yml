@@ -1,6 +1,17 @@
 stages:
+  - test
   - build
   - deploy
+
+javascript:
+  stage: test
+  script:
+    - "jest --ci --reporters=default --reporters=jest-junit"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - junit.xml
 
 build:
   image: node:latest # Run the job in a `node` docker image
