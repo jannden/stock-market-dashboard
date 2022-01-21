@@ -61,7 +61,7 @@ const Profile = function Profile() {
       }
       setFormData({ ...formData, formLoading: true });
     }
-    dispatch(updateUser(formData, setFormData));
+    dispatch(updateUser(formData, setFormData, currentUser.firestore));
 
     return null;
   };

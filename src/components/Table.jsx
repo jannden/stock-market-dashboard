@@ -105,8 +105,10 @@ const Table = function Table() {
     setFilterFn({
       fn: (stocks) => {
         if (e.target.value === "") return stocks;
-        return stocks.filter((x) =>
-          x.name.toLowerCase().includes(e.target.value)
+        return stocks.filter(
+          (x) =>
+            x.name.toLowerCase().includes(e.target.value) ||
+            x.symbol.toLowerCase().includes(e.target.value)
         );
       },
     });

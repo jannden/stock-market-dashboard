@@ -12,7 +12,7 @@ import { auth } from "../firebase";
 
 import { SET_USER, UNSET_USER } from "./types";
 
-export const updateUser = (formData, setFormData) => (dispatch) => {
+export const updateUser = (formData, setFormData, firestore) => (dispatch) => {
   const credential = EmailAuthProvider.credential(
     auth.currentUser.email,
     formData.oldPassword
@@ -44,6 +44,7 @@ export const updateUser = (formData, setFormData) => (dispatch) => {
         email: formData.email,
         displayName: formData.displayName,
         photoURL: formData.photoURL,
+        firestore,
       };
       dispatch({
         type: SET_USER,
