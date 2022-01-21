@@ -1,17 +1,7 @@
 stages:
-  - test
   - build
+  - test
   - deploy
-
-javascript:
-  stage: test
-  script:
-    - yarn testreport
-  artifacts:
-    when: always
-    reports:
-      junit:
-        - junit.xml
 
 build:
   image: node:latest # Run the job in a `node` docker image
@@ -22,6 +12,16 @@ build:
   artifacts:
     paths:
       - build/ # Save the build result as an artifact
+
+javascript:
+  stage: test
+  script:
+    - yarn test:ci
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - junit.xml
 
 pages:
   image: alpine:latest

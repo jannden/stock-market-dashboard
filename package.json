@@ -14,7 +14,7 @@
     "husky-test": "echo \"Welcome, this is Husky speaking...\"",
     "lint": "eslint --fix",
     "test": "jest",
-    "testreport": "jest --ci --reporters=default --reporters=jest-junit",
+    "test:ci": "jest --ci --reporters=default --reporters=jest-junit",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage",
     "test:cypress": "start-server-and-test start http://localhost:8080 cypress",
