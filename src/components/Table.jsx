@@ -52,7 +52,7 @@ const Table = function Table() {
   const [filterFn, setFilterFn] = useState({
     fn: (stocks) => stocks,
   });
-  const [modalAction, setModalAction] = React.useState({
+  const [modalStatus, setModalStatus] = React.useState({
     modalOpened: false,
     activeStock: null,
   });
@@ -117,7 +117,7 @@ const Table = function Table() {
   const dispatch = useDispatch();
 
   const handleStockAction = (activeStock, action) => {
-    setModalAction({
+    setModalStatus({
       modalOpened: true,
       activeStock,
       action,
@@ -247,7 +247,7 @@ const Table = function Table() {
         </TableBody>
       </TblContainer>
       <TblPagination />
-      <ModalForm modalAction={modalAction} setModalAction={setModalAction} />
+      <ModalForm modalStatus={modalStatus} setModalStatus={setModalStatus} />
     </>
   );
 };

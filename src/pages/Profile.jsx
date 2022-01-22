@@ -20,9 +20,12 @@ import { auth } from "../firebase";
 import { updateUser } from "../actions/userActions";
 
 const Profile = function Profile() {
+  // Get state for currentUser from Redux
   const currentUser = useSelector((state) => state.currentUser);
+  // Get dispatch for updating the state
   const dispatch = useDispatch();
 
+  // Local state for Form Data
   const [formData, setFormData] = React.useState({
     formLoading: false,
     formError: null,
@@ -36,36 +39,50 @@ const Profile = function Profile() {
     oldPassword: "",
   });
 
+  // Change handler which updates local state
+  // In order to make it universal for all fields, we dynamically use [fieldName]: fieldValue
   const handleChange = (event) => {
     const fieldName = event.target.name;
     const fieldValue = event.target.value;
-    setFormData(() => ({ ...formData, [fieldName]: fieldValue }));
+    setFormData((prevState) => ({ ...prevState, [fieldName]: fieldValue }));
   };
 
+  // Submit handler
   const handleSubmit = (event) => {
-    if (event) {
-      // a condition due to mockStore in tests
-      event.preventDefault();
-      const form = event.currentTarget;
-      setFormData({ ...formData, formValidated: true });
-      if (form.checkValidity() === false) {
-        event.stopPropagation();
-        return null;
-      }
-      if (
-        (formData.newPassword1 || formData.newPassword2) &&
-        formData.newPassword1 !== formData.newPassword2
-      ) {
-        setFormData({ ...formData, formError: "The passwords don't match." });
-        return null;
-      }
-      setFormData({ ...formData, formLoading: true });
+    // First preventing default form behavior
+    event.preventDefault();
+
+    // Validation with Bootstrap
+    setFormData((prevState) => ({ ...prevState, formValidated: true }));
+    if (event.currentTarget.checkValidity() === false) {
+      event.stopPropagation();
+      return null;
     }
+
+    // Verification of passwords. Password is updated only when filled out.
+    if (
+      (formData.newPassword1 || formData.newPassword2) &&
+      formData.newPassword1 !== formData.newPassword2
+    ) {
+      setFormData((prevState) => ({
+        ...prevState,
+        formError: "The passwords don't match.",
+      }));
+      return null;
+    }
+
+    // Loading state prevents accidental double clicks on the submit button
+    setFormData((prevState) => ({ ...prevState, formLoading: true }));
+
+    // We send the data to the Action Creator, which takes care of the async connection with Firebase and Firestore
+    // The Action creator then dispatches the action to Redux
     dispatch(updateUser(formData, setFormData, currentUser.firestore));
 
     return null;
   };
 
+  // Sign out
+  // When Firebase signs the user out, nulled user data is dispatched to Redux from App.jsx, where we have a listener onAuthStateChanged
   const handleSignout = () => {
     signOut(auth);
   };
@@ -90,7 +107,7 @@ const Profile = function Profile() {
                 validated={formData.formValidated}
                 onSubmit={handleSubmit}
               >
-                <Form.Group id="email" className="mb-3">
+                <Form.Group className="mb-3">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
@@ -98,9 +115,10 @@ const Profile = function Profile() {
                     value={formData.email}
                     onChange={handleChange}
                     name="email"
+                    id="email"
                   />
                 </Form.Group>
-                <Form.Group id="displayName" className="mb-3">
+                <Form.Group className="mb-3">
                   <Form.Label>Display Name</Form.Label>
                   <Form.Control
                     type="text"
@@ -108,34 +126,38 @@ const Profile = function Profile() {
                     value={formData.displayName}
                     onChange={handleChange}
                     name="displayName"
+                    id="displayName"
                   />
                 </Form.Group>
-                <Form.Group id="photoURL" className="mb-3">
+                <Form.Group className="mb-3">
                   <Form.Label>Photo URL</Form.Label>
                   <Form.Control
                     type="text"
                     value={formData.photoURL}
                     onChange={handleChange}
                     name="photoURL"
+                    id="photoURL"
                   />
                 </Form.Group>
-                <Form.Group id="password" className="mb-3">
+                <Form.Group className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
                     value={formData.newPassword1}
                     onChange={handleChange}
                     name="newPassword1"
+                    id="newPassword1"
                     placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
-                <Form.Group id="password-confirm" className="mb-3">
+                <Form.Group className="mb-3">
                   <Form.Label>Password Confirmation</Form.Label>
                   <Form.Control
                     type="password"
                     value={formData.newPassword2}
                     onChange={handleChange}
                     name="newPassword2"
+                    id="newPassword2"
                     placeholder="Leave blank to keep the same"
                   />
                 </Form.Group>
@@ -151,6 +173,7 @@ const Profile = function Profile() {
                     required
                     type="password"
                     name="oldPassword"
+                    id="oldPassword"
                     value={formData.oldPassword}
                     onChange={handleChange}
                     role="textbox"
@@ -175,6 +198,7 @@ const Profile = function Profile() {
                   variant="outline-secondary"
                   type="button"
                   onClick={handleSignout}
+                  id="sign-out"
                 >
                   Sign out
                 </Button>

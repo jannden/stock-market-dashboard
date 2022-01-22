@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -15,56 +14,65 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 
 const SignUp = function SignUp() {
-  const currentUser = useSelector((state) => state.currentUser);
-
+  // Local state for Form Data
   const [formData, setFormData] = React.useState({
     formLoading: false,
     formError: null,
-    formSuccess: null,
     formValidated: false,
-    email: currentUser.email || "",
-    displayName: currentUser.displayName || "",
-    photoURL: currentUser.photoURL || "",
+    email: "",
     newPassword1: "",
     newPassword2: "",
-    oldPassword: "",
   });
 
+  // Change handler which updates local state
+  // In order to make it universal for all fields, we dynamically use [fieldName]: fieldValue
   const handleChange = (event) => {
     const fieldName = event.target.name;
     const fieldValue = event.target.value;
-    setFormData(() => ({ ...formData, [fieldName]: fieldValue }));
+    setFormData((prevState) => ({ ...prevState, [fieldName]: fieldValue }));
   };
 
+  // Submit handler
   const handleSubmit = (event) => {
+    // First preventing default form behavior
     event.preventDefault();
-    const form = event.currentTarget;
-    setFormData({ ...formData, formValidated: true });
-    if (form.checkValidity() === false) {
+
+    // Validation with Bootstrap
+    setFormData((prevState) => ({ ...prevState, formValidated: true }));
+    if (event.currentTarget.checkValidity() === false) {
       event.stopPropagation();
       return null;
     }
-    setFormData({ ...formData, formLoading: true });
 
-    // We don't need to dispatch userData to Redux from here, as it is taken care of in onAuthStateChanged (App.jsx)
-    createUserWithEmailAndPassword(
-      auth,
-      formData.email,
-      formData.newPassword1
-    ).catch((firebaseError) => {
-      setFormData({
-        ...formData,
-        formLoading: false,
-        formValidated: false,
-        formError: `There was an error: ${firebaseError.code}.`,
+    // Verification of passwords
+    if (formData.password1 !== formData.password2) {
+      setFormData((prevState) => ({
+        ...prevState,
+        formError: "The passwords don't match.",
+      }));
+      event.stopPropagation();
+      return null;
+    }
+
+    // Loading state prevents accidental double clicks on the submit button
+    setFormData((prevState) => ({ ...prevState, formLoading: true }));
+
+    // Sending data to Firebase
+    // When Firebase approves, creates account, and logs the user in, user data is dispatched to Redux from App.jsx, where we have a listener onAuthStateChanged
+    createUserWithEmailAndPassword(auth, formData.email, formData.newPassword1)
+      // If there is an error, we show it in the form
+      .catch((firebaseError) => {
+        setFormData((prevState) => ({
+          ...prevState,
+          formLoading: false,
+          formValidated: false,
+          formError: `There was an error: ${firebaseError.code}.`,
+        }));
+        // We also set a timer to clean the error message and form validation
+        setTimeout(() => {
+          setFormData((prevState) => ({ ...prevState, formError: "" }));
+        }, 3000);
       });
-      setTimeout(() => {
-        setFormData({
-          ...formData,
-          formError: "",
-        });
-      }, 3000);
-    });
     return null;
   };
   return (
@@ -76,9 +84,6 @@ const SignUp = function SignUp() {
               <h2 className="text-center mb-4">Hello! Please sign up.</h2>
               {formData.formError && (
                 <Alert variant="danger">{formData.formError}</Alert>
-              )}
-              {formData.formSuccess && (
-                <Alert variant="success">{formData.formSuccess}</Alert>
               )}
               <Form
                 noValidate
