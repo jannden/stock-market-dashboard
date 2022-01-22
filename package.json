@@ -14,11 +14,13 @@
     "husky-test": "echo \"Welcome, this is Husky speaking...\"",
     "lint": "eslint --fix",
     "test": "jest",
+    "test:node": "jest --env=node",
     "test:ci": "jest --ci --reporters=default --reporters=jest-junit",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage",
     "test:cypress": "start-server-and-test start http://localhost:8080 cypress",
-    "cypress": "cypress run"
+    "cypress": "cypress run",
+    "cypress:open": "cypress open"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

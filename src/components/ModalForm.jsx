@@ -11,26 +11,33 @@ import Button from "react-bootstrap/Button";
 
 // Modal
 import Modal from "react-modal";
+import modalStyles from "../../data/modalStyles";
 
 // Firestore
 import { saveFirestore } from "../firebase";
 
+// Redux
 import { setUser } from "../actions/userActions";
 
-// Modal settings
-import modalStyles from "../../data/modalStyles";
-
+// Modal readability
 Modal.setAppElement("#app");
 
+// Simple utility function
 export const roundTwoDecimals = (value) =>
   Math.round(Number(value) * 100) / 100;
 
 // Component
-const ModalForm = function ModalForm({ modalAction, setModalAction }) {
+const ModalForm = function ModalForm({ modalStatus, setModalStatus }) {
+  // Connection to Redux
   const currentUser = useSelector((state) => state.currentUser);
-  const stockDataFromRedux = useSelector((state) => state.stockData);
+  const stockData = useSelector((state) => state.stockData);
   const dispatch = useDispatch();
-  const { modalOpened, activeStock } = modalAction;
+
+  // Props for Modal visibility and active Stock symbol
+  // They come from the local state of the parent element (Table)
+  const { modalOpened, activeStock } = modalStatus;
+
+  // Local state for Form
   const [formData, setFormData] = React.useState({
     numberOfStocks: 0,
     finalAmount: 0,
@@ -40,34 +47,37 @@ const ModalForm = function ModalForm({ modalAction, setModalAction }) {
   });
 
   React.useEffect(() => {
+    // Update local state for form
+    // We have to do it with useEffect because of async nature of Firestore
+    // And also because we can use the dependencies to update the state when for example activeStock changes
     setFormData({
       numberOfStocks: 0,
       finalAmount: 0,
       wallet: currentUser.firestore?.wallet || 1000,
       units: currentUser.firestore?.stockUnits?.[activeStock] || 0,
-      unitPrice: stockDataFromRedux?.[activeStock]?.seriesCandle[0]?.data[0]
-        ?.y[3]
-        ? Math.round(
-            Number(
-              stockDataFromRedux[activeStock].seriesCandle[0].data[0].y[3]
-            ) * 100
-          ) / 100
+      unitPrice: stockData?.[activeStock]?.seriesCandle[0]?.data[0]?.y[3]
+        ? roundTwoDecimals(stockData[activeStock].seriesCandle[0].data[0].y[3])
         : 0,
     });
-  }, [activeStock, currentUser.firestore, stockDataFromRedux]);
+  }, [activeStock, currentUser.firestore, stockData]);
 
+  // Change handler
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prevState) => ({
+      ...prevState,
       numberOfStocks: e.target.value,
       finalAmount: roundTwoDecimals(
         formData.unitPrice * Number(e.target.value)
       ),
-    });
+    }));
   };
 
-  const handleAction = (type) => {
+  // Submit handler
+  // We use the same handler for Buy and Sell stock, we receive the desired action as a parameter
+  const handleSubmit = (type) => {
     const prevUnits = formData.units || 0;
+
+    // We calculate new Wallet and new Number of Stocks based on the desired action
     const newWallet =
       type === "buy"
         ? roundTwoDecimals(formData.wallet - Number(formData.finalAmount))
@@ -76,6 +86,8 @@ const ModalForm = function ModalForm({ modalAction, setModalAction }) {
       type === "buy"
         ? prevUnits + Number(formData.numberOfStocks)
         : prevUnits - Number(formData.numberOfStocks);
+
+    // Composing data for Firestore
     const dataForFirestore = {
       wallet: newWallet,
       stockUnits: {
@@ -83,7 +95,10 @@ const ModalForm = function ModalForm({ modalAction, setModalAction }) {
         [activeStock]: Math.round(newNumberOfStocks),
       },
     };
+
+    // Saving Firestore
     saveFirestore(dataForFirestore).then(() => {
+      // After Firestore saves the data, we dispatch them to Redux to update the state as well
       const data = {
         ...currentUser,
         firestore: dataForFirestore,
@@ -156,7 +171,7 @@ const ModalForm = function ModalForm({ modalAction, setModalAction }) {
                 <Col>
                   <Button
                     onClick={() =>
-                      setModalAction({
+                      setModalStatus({
                         modalOpened: false,
                         activeStock: null,
                       })
@@ -170,10 +185,11 @@ const ModalForm = function ModalForm({ modalAction, setModalAction }) {
                 <Col>
                   <Button
                     disabled={
+                      /* we keep the button disabled till the action makes sense */
                       formData.numberOfStocks < 1 ||
                       formData.finalAmount > formData.wallet
                     }
-                    onClick={() => handleAction("buy")}
+                    onClick={() => handleSubmit("buy")}
                     variant="success"
                     className="col-12"
                     type="button"
@@ -184,10 +200,11 @@ const ModalForm = function ModalForm({ modalAction, setModalAction }) {
                 <Col>
                   <Button
                     disabled={
+                      /* we keep the button disabled till the action makes sense */
                       formData.numberOfStocks < 1 ||
                       formData.numberOfStocks > formData.units
                     }
-                    onClick={() => handleAction("sell")}
+                    onClick={() => handleSubmit("sell")}
                     variant="danger"
                     className="col-12"
                     type="button"

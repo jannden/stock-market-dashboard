@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
 // Bootstrap
 import Container from "react-bootstrap/Container";
@@ -15,55 +14,56 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 
 const LogIn = function LogIn() {
-  const currentUser = useSelector((state) => state.currentUser);
-
+  // Local state for Form Data
   const [formData, setFormData] = React.useState({
-    formLoading: false,
     formError: null,
-    formSuccess: null,
     formValidated: false,
-    email: currentUser.email || "",
+    email: "",
     password: "",
   });
 
-  const testCheck = () => true;
-
+  // Change handler which updates local state
+  // In order to make it universal for all fields, we dynamically use [fieldName]: fieldValue
   const handleChange = (event) => {
     const fieldName = event.target.name;
     const fieldValue = event.target.value;
-    setFormData({ ...formData, [fieldName]: fieldValue });
+    setFormData((prevState) => ({ ...prevState, [fieldName]: fieldValue }));
   };
 
+  // Submit handler
   const handleSubmit = (event) => {
-    if (testCheck) event.preventDefault();
-    const form = event.currentTarget;
-    setFormData({ ...formData, formValidated: true });
-    if (form.checkValidity() === false) {
+    // First preventing default form behavior
+    event.preventDefault();
+
+    // Validation with Bootstrap
+    setFormData((prevState) => ({ ...prevState, formValidated: true }));
+    if (event.currentTarget.checkValidity() === false) {
       event.stopPropagation();
       return null;
     }
-    setFormData({ ...formData, formLoading: true });
 
-    // We don't need to dispatch userData to Redux from here, as it is taken care of in onAuthStateChanged (App.jsx)
-    signInWithEmailAndPassword(auth, formData.email, formData.password).catch(
-      (firebaseError) => {
-        setFormData({
-          ...formData,
-          formLoading: false,
+    // Sending data to Firebase
+    // When Firebase approves and logs the user in, user data is dispatched to Redux from App.jsx, where we have a listener onAuthStateChanged
+    signInWithEmailAndPassword(auth, formData.email, formData.password)
+      // If there is an error, we show it in the form
+      .catch((firebaseError) => {
+        setFormData((prevState) => ({
+          ...prevState,
           formValidated: false,
           formError: `There was an error: ${firebaseError.code}.`,
-        });
+        }));
+        // We also set a timer to clean the error message and form validation
         setTimeout(() => {
           setFormData({
             ...formData,
             formError: "",
           });
         }, 3000);
-      }
-    );
+      });
 
     return null;
   };
+
   return (
     <Container>
       <Row className="justify-content-md-center">
@@ -102,11 +102,7 @@ const LogIn = function LogIn() {
                 </Form.Group>
                 <div className="text-center">
                   <Button
-                    disabled={
-                      formData.formLoading ||
-                      formData.email === "" ||
-                      formData.password === ""
-                    }
+                    disabled={formData.email === "" || formData.password === ""}
                     variant="primary"
                     id="submit"
                     type="submit"
