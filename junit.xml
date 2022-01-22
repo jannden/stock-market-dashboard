@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="18" failures="0" errors="0" time="6.723">
+  <testsuite name="REDUCERS" errors="0" failures="0" skipped="0" timestamp="2022-01-21T15:53:50" time="1.929" tests="3">
+    <testcase classname="REDUCERS Reducer addStockData should work." name="REDUCERS Reducer addStockData should work." time="0.002">
+    </testcase>
+    <testcase classname="REDUCERS Reducer chosenStockReducer should work." name="REDUCERS Reducer chosenStockReducer should work." time="0.001">
+    </testcase>
+    <testcase classname="REDUCERS Reducer userReducer should work." name="REDUCERS Reducer userReducer should work." time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="ACTION CREATORS" errors="0" failures="0" skipped="0" timestamp="2022-01-21T15:53:50" time="2.074" tests="4">
+    <testcase classname="ACTION CREATORS chosenStockActions.js -&gt; Action creator addStockData should work." name="ACTION CREATORS chosenStockActions.js -&gt; Action creator addStockData should work." time="0.003">
+    </testcase>
+    <testcase classname="ACTION CREATORS stockDataActions.js -&gt; Action creator selectStock should work." name="ACTION CREATORS stockDataActions.js -&gt; Action creator selectStock should work." time="0.001">
+    </testcase>
+    <testcase classname="ACTION CREATORS userActions.js -&gt; Action creator setUser should work." name="ACTION CREATORS userActions.js -&gt; Action creator setUser should work." time="0">
+    </testcase>
+    <testcase classname="ACTION CREATORS userActions.js -&gt; Action creator unsetUser should work." name="ACTION CREATORS userActions.js -&gt; Action creator unsetUser should work." time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="SignUp" errors="0" failures="0" skipped="0" timestamp="2022-01-21T15:53:50" time="2.123" tests="1">
+    <testcase classname="SignUp SignUp snapshot renders" name="SignUp SignUp snapshot renders" time="0.027">
+    </testcase>
+  </testsuite>
+  <testsuite name="SNAPSHOT TESTS" errors="0" failures="0" skipped="0" timestamp="2022-01-21T15:53:50" time="4.365" tests="6">
+    <testcase classname="SNAPSHOT TESTS SignUp snapshot renders" name="SNAPSHOT TESTS SignUp snapshot renders" time="0.017">
+    </testcase>
+    <testcase classname="UNIT TESTS Log In form is usable." name="UNIT TESTS Log In form is usable." time="0.114">
+    </testcase>
+    <testcase classname="UNIT TESTS Log In button is disabled if form is loading Firebase status, or if email or password are not filled out." name="UNIT TESTS Log In button is disabled if form is loading Firebase status, or if email or password are not filled out." time="0.038">
+    </testcase>
+    <testcase classname="INTEGRATION TESTS Sign in should throw error on wrong credentials." name="INTEGRATION TESTS Sign in should throw error on wrong credentials." time="0.309">
+    </testcase>
+    <testcase classname="INTEGRATION TESTS Sign in should return logged in user from Firebase on correct credentials. " name="INTEGRATION TESTS Sign in should return logged in user from Firebase on correct credentials. " time="0.514">
+    </testcase>
+    <testcase classname="INTEGRATION TESTS Sign out should work with Firebase." name="INTEGRATION TESTS Sign out should work with Firebase." time="0.618">
+    </testcase>
+  </testsuite>
+  <testsuite name="SNAPSHOT TESTS" errors="0" failures="0" skipped="0" timestamp="2022-01-21T15:53:50" time="5.353" tests="4">
+    <testcase classname="SNAPSHOT TESTS Profile snapshot renders" name="SNAPSHOT TESTS Profile snapshot renders" time="0.021">
+    </testcase>
+    <testcase classname="UNIT TESTS Update profile button is disabled if no password is provided." name="UNIT TESTS Update profile button is disabled if no password is provided." time="0.155">
+    </testcase>
+    <testcase classname="INTEGRATION TESTS Update profile should throw error on wrong credentials." name="INTEGRATION TESTS Update profile should throw error on wrong credentials." time="0.924">
+    </testcase>
+    <testcase classname="INTEGRATION TESTS Update displayName should work." name="INTEGRATION TESTS Update displayName should work." time="1.484">
+    </testcase>
+  </testsuite>
+</testsuites>

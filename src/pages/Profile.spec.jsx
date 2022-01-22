@@ -70,23 +70,22 @@ describe("INTEGRATION TESTS", () => {
   });
 
   test("Update displayName should work.", async () => {
-    const incorrectPassword = "xxx";
     const correctPassword = "abc123";
     const newDisplayName = Math.floor(Math.random() * 1000 + 1).toString();
     await signInWithEmailAndPassword(auth, "jest@example.com", correctPassword);
     expect(auth.currentUser).toBeTruthy();
     expect(auth.currentUser.email).toBe("jest@example.com");
 
-    const credential = EmailAuthProvider.credential(
-      auth.currentUser.email,
-      incorrectPassword
-    );
-    reauthenticateWithCredential(auth.currentUser, credential)
-      .then(() => {
-        updateProfile(auth.currentUser, { displayName: newDisplayName });
-      })
-      .then(() => {
-        expect(auth.currentUser.displayName).toBe(newDisplayName);
-      });
+    try {
+      const credential = EmailAuthProvider.credential(
+        auth.currentUser.email,
+        correctPassword
+      );
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updateProfile(auth.currentUser, { displayName: newDisplayName });
+    } catch (err) {
+      console.log(err.toString());
+    }
+    expect(auth.currentUser.displayName).toBe(newDisplayName);
   });
 });
