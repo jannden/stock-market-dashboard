@@ -11,6 +11,46 @@ import {
   TableSortLabel,
 } from "@material-ui/core";
 
+export function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
+//order of display
+export function getComparator(order, orderBy) {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+export function getDigitsFromString(str) {
+  str = str.toString().replace(/[^\d.-]/g, "");
+  return parseInt(str);
+}
+
+export function descendingComparator(a, b, orderBy) {
+  //sort for digits
+  if (orderBy !== "symbol" && orderBy !== "name" && orderBy != undefined) {
+    var tmpA = getDigitsFromString(a[orderBy]);
+    var tmpB = getDigitsFromString(b[orderBy]);
+    if (tmpA > tmpB) return -1;
+    if (tmpA < tmpB) return 1;
+  }
+  //sort for strings
+  if (a[orderBy] > b[orderBy]) {
+    return -1;
+  }
+  if (a[orderBy] < b[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
 const useStyles = makeStyles((theme) => ({
   table: {
     "& thead th": {
@@ -105,46 +145,6 @@ export default function useTable(records, headCells, filterFn) {
       onRowsPerPageChange={handleChangeRowsPerPage}
     />
   );
-
-  function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-      const order = comparator(a[0], b[0]);
-      if (order !== 0) return order;
-      return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-  }
-
-  //order of display
-  function getComparator(order, orderBy) {
-    return order === "desc"
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  }
-
-  function getDigitsFromString(str) {
-    str = str.toString().replace(/[^\d.-]/g, "");
-    return parseInt(str);
-  }
-
-  function descendingComparator(a, b, orderBy) {
-    //sort for digits
-    if (orderBy !== "symbol" && orderBy !== "name" && orderBy != undefined) {
-      var tmpA = getDigitsFromString(a[orderBy]);
-      var tmpB = getDigitsFromString(b[orderBy]);
-      if (tmpA > tmpB) return -1;
-      if (tmpA < tmpB) return 1;
-    }
-    //sort for strings
-    if (a[orderBy] > b[orderBy]) {
-      return -1;
-    }
-    if (a[orderBy] < b[orderBy]) {
-      return 1;
-    }
-    return 0;
-  }
 
   const recordsAfterPagingAndSorting = () => {
     return stableSort(
