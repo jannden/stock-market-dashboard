@@ -20,7 +20,7 @@ import { saveFirestore } from "../firebase";
 import { setUser } from "../actions/userActions";
 
 // Modal readability
-Modal.setAppElement("#app");
+if (process.env.NODE_ENV !== "test") Modal.setAppElement("#app");
 
 // Simple utility function
 export const roundTwoDecimals = (value) =>
