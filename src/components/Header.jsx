@@ -10,6 +10,9 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Image from "react-bootstrap/Image";
 
+// Util
+import { roundTwoDecimals } from "./ModalForm";
+
 const UserNav = function UserNav() {
   const currentUser = useSelector((state) => state.currentUser);
   const stockDataFromRedux = useSelector((state) => state.stockData);
@@ -21,7 +24,7 @@ const UserNav = function UserNav() {
   const daysAgo = 0;
   const portfolioValue =
     !currentUser.firestore?.stockUnits || !currentUser.firestore?.wallet
-      ? 0
+      ? 1000
       : currentUser.firestore.wallet +
         Object.keys(currentUser.firestore.stockUnits).reduce((next, key) => {
           if (!next.toString().includes("Missing data")) {
@@ -31,10 +34,10 @@ const UserNav = function UserNav() {
             if (!stockDataFromRedux[key]?.seriesCandle?.[0].data[0].y[3]) {
               return "Missing data";
             }
-            return (
+            return roundTwoDecimals(
               next +
-              currentUser.firestore.stockUnits[key] *
-                stockDataFromRedux[key].seriesCandle[0].data[daysAgo].y[3]
+                currentUser.firestore.stockUnits[key] *
+                  stockDataFromRedux[key].seriesCandle[0].data[daysAgo].y[3]
             );
           }
           return next;
@@ -45,7 +48,7 @@ const UserNav = function UserNav() {
         Portfolio value:{" "}
         {portfolioValue.toString().includes("Missing data")
           ? "Missing data"
-          : portfolioValue}
+          : `$${portfolioValue}`}
       </Navbar.Text>
       <Link to="/profile">
         <Image

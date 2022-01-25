@@ -42,7 +42,7 @@ module.exports = {
     new ESLintPlugin(eslintOptions),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: "Dynamic Forms",
+      title: "Stock Market Dashboard",
       template: path.resolve(__dirname, "./src/index.html"),
     }),
     new Dotenv(),

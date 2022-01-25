@@ -40,8 +40,8 @@ export const updateUser = (formData, setFormData, firestore) => (dispatch) => {
     )
     .then(() =>
       // Changing passwords
-      formData.password1
-        ? updatePassword(auth.currentUser, formData.password1)
+      formData.newPassword1
+        ? updatePassword(auth.currentUser, formData.newPassword1)
         : true
     )
     .then(() =>
