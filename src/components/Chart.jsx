@@ -52,8 +52,10 @@ const StocksChart = function StocksChart() {
       );
     } else {
       console.log("Fetching Alpha Vantage.");
+      console.log(process.env.REACT_APP_FIREBASE_API_KEY);
+      console.log(process.env.REACT_APP_ALPHA_VANTAGE);
       fetch(
-        `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${selectedStock}&apikey=${process.env.APLHA_VENTAGE}&outputsize=compact`
+        `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${selectedStock}&apikey=${process.env.REACT_APP_ALPHA_VANTAGE}&outputsize=compact`
       )
         .then((res) => res.json())
         .then((data) => {
@@ -72,7 +74,7 @@ const StocksChart = function StocksChart() {
             const stockVolume = Object.keys(data["Time Series (Daily)"]).map(
               (key) => ({
                 x: key,
-                y: data["Time Series (Daily)"][key]["5. volume"],
+                y: data["Time Series (Daily)"][key]["6. volume"],
               })
             );
 
