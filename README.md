@@ -1,13 +1,15 @@
 # Stock Market Dashboard
 
-[Open live](https://jannden.gitlab.io/stock-market-dashboard)
+[Open live](https://jannden.github.io/stock-market-dashboard)
 
-An older hobby project for a stock market dashboard built with React to visualize a predefined set of stock market indexes
+A stock market dashboard built with React-Redux to visualize a predefined set of stock market indexes.
 
-- Firebase Auth
-- Firestore
-- Stock market indexes from [Alpha Vantage](https://www.alphavantage.co/)
-- Husky
+Tech stack:
+- [Firebase Auth and Firestore](https://firebase.google.com/)
+- [Material UI](https://mui.com/material-ui/)
+- [Apex Charts](https://apexcharts.com/)
+- Data from [Alpha Vantage](https://www.alphavantage.co/)
+- Husky for pre-commit linting
 - E2E tests with Cypress
 - Unit tests with Jest with Enzyme
 
