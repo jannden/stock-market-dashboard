@@ -24,9 +24,7 @@ module.exports = {
           {
             loader: require.resolve("babel-loader"),
             options: {
-              plugins: [
-                !isProduction && require.resolve("react-refresh/babel"),
-              ].filter(Boolean),
+              plugins: [!isProduction && require.resolve("react-refresh/babel")].filter(Boolean),
             },
           },
         ],
@@ -53,11 +51,13 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./build"),
     filename: "bundle.js",
-    publicPath: !isProduction ? "/" : "/stock-market-dashboard/", // necessary to make react-router-dom subpages work on refresh
+    // publicPath: !isProduction ? "/" : "/stock-market-dashboard/", // necessary to make react-router-dom subpages work on refresh
+    publicPath: "/"
   },
   devServer: {
     static: path.resolve(__dirname, "./build"),
     historyApiFallback: true, // necessary to make react-router-dom subpages work on refresh
+    
   },
   devtool: "source-map",
 };

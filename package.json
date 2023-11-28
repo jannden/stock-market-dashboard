@@ -1,10 +1,10 @@
 {
   "name": "stock-market-dashboard",
   "version": "1.0.0",
-  "description": "React-based stock market dashboard that visualizes a predefined set of stock market indexes from a 3rd party API. This is a project for the React Upskill course from the Telerik Academy.",
+  "description": "React-based stock market dashboard that visualizes a predefined set of stock market indexes from a 3rd party API.",
   "main": "./src/index.jsx",
-  "homepage": "https://jannden.gitlab.io/stock-market-dashboard",
-  "repository": "https://gitlab.com/JanNDen/stock-market-dashboard",
+  "homepage": "https://jannden.github.io/stock-market-dashboard",
+  "repository": "https://github.com/jannden/stock-market-dashboard",
   "author": "Jan Cibulka and Teya Andreeva",
   "license": "ISC",
   "scripts": {
