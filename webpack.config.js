@@ -51,8 +51,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./build"),
     filename: "bundle.js",
-    // publicPath: !isProduction ? "/" : "/stock-market-dashboard/", // necessary to make react-router-dom subpages work on refresh
-    publicPath: "/"
+    publicPath: !isProduction ? "/" : "/stock-market-dashboard/", // necessary to make react-router-dom subpages work on refresh
   },
   devServer: {
     static: path.resolve(__dirname, "./build"),
